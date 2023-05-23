@@ -1,0 +1,18 @@
+{
+  "name": "ua-video-online",
+  "version": "0.1.0",
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "codegen": "yarn codegen-server && yarn codegen-next",
+    "codegen-server": "cd server && yarn codegen",
+    "codegen-next": "cd next && yarn codegen",
+    "dev": "concurrently --kill-others \"yarn dev-server\" \"yarn dev-next\" ",
+    "dev-server": "cd server && yarn dev",
+    "dev-next": "cd next && yarn dev",
+    "deploy": "concurrently --kill-others \"cd next && yarn deploy\" \"cd server && yarn deploy\" "
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.1"
+  }
+}
