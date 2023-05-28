@@ -17,8 +17,8 @@ interface IRequest extends IExpressRequest {
 
 interface IResponse extends IExpressResponse<string, void> {}
 
-app.post(API_URL.api.cypress.imdb.toString(), async (req: IRequest, res: IResponse) => {
-    const [data, error] = await getCypressImdbAsync(decodeURIComponent(req.body.href));
+app.post(API_URL.api.parser.cypressImdb.toString(), async (req: IRequest, res: IResponse) => {
+    const [data, error] = await getCypressImdbAsync(req.body.href);
     if (error) {
         return res.status(400).send(error);
     }
@@ -26,7 +26,6 @@ app.post(API_URL.api.cypress.imdb.toString(), async (req: IRequest, res: IRespon
 });
 
 export const getCypressImdbAsync = async (href: string): Promise<IQueryReturn<{ id: string }>> => {
-    console.log('getCypressImdbAsync href', href);
     return toQueryPromise<{ id: string }>((resolve, reject) => {
         cypress
             .run({
@@ -34,6 +33,7 @@ export const getCypressImdbAsync = async (href: string): Promise<IQueryReturn<{ 
                     CYPRESS_NO_COMMAND_LOG: 1,
                     URL: href,
                 },
+                quiet: true,
                 spec: './cypress/integration/get-imdb.spec.ts',
             })
             .then((results: any) => {

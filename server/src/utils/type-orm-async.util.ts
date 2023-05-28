@@ -3,7 +3,8 @@ import { ENV } from '@server/env';
 import { DataSource } from 'typeorm';
 import { IQueryReturn } from './to-query.util';
 import { RezkaMovieDto } from '@server/dto/rezka-movie.dto';
-import { StreamDto } from '@server/dto/stream.dto';
+import { TranslationDto } from '@server/dto/translation.dto';
+import { RezkaMovieTranslationDto } from '@server/dto/rezka_movie_translation.dto';
 
 const IS_DEBUG = ENV.node_env === 'development';
 
@@ -19,7 +20,7 @@ const getDataSource = (): DataSource => {
         database: ENV.database,
         password: IS_DEBUG ? ENV.owner_password : ENV.password,
         port: ENV.port,
-        entities: [ImdbDto, RezkaMovieDto, StreamDto],
+        entities: [ImdbDto, RezkaMovieDto, TranslationDto, RezkaMovieTranslationDto],
         synchronize: true,
         poolSize: 10,
         logging: false,

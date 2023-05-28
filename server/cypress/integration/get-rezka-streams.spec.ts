@@ -2,7 +2,7 @@ import {
     IResolutionItem,
     ITranslation,
     IVideoInfoResult,
-} from '../../src/controller/cypress/cypress-rezka-streams.controller';
+} from '../../src/controller/parser/cypress-rezka-streams.controller';
 
 describe('get-rezka-stream', () => {
     it('get-stream', () => {
@@ -57,8 +57,14 @@ const getStreams = async ({ url, callback }: { url: string; callback: (outputIte
                     imdb_id = x.attr('href') || '';
                 });
 
+            let encoded_video_url = '';
+            cy.get('#rawResult').then((x) => {
+                encoded_video_url = x.text();
+            });
+
             const tmpUrl = url.replace('.html', '');
             const year = +tmpUrl.substring(tmpUrl.length - 4);
+
             cy.get('#result')
                 .should('be.visible')
                 .then((result) => {
@@ -69,6 +75,10 @@ const getStreams = async ({ url, callback }: { url: string; callback: (outputIte
                             resolutions: streamStringToObject(streamStr),
                             translation: 'default',
                             data_translator_id: '',
+                            data_ads: '',
+                            data_camrip: '',
+                            data_director: '',
+                            encoded_video_url,
                         });
 
                         callback({
@@ -84,12 +94,17 @@ const getStreams = async ({ url, callback }: { url: string; callback: (outputIte
                             .find('li')
                             .each((li, index) => {
                                 if (index == 0) {
-                                    // const streamStr = result.text();
-                                    // translations.push({
-                                    //     resolutions: streamStringToObject(streamStr),
-                                    //     translation: li.text(),
-                                    // });
-                                    // return;
+                                    const streamStr = result.text();
+                                    translations.push({
+                                        resolutions: streamStringToObject(streamStr),
+                                        translation: li.text(),
+                                        data_translator_id: '',
+                                        data_ads: '',
+                                        data_camrip: '',
+                                        data_director: '',
+                                        encoded_video_url,
+                                    });
+                                    return;
                                 } else {
                                     if (li.text().includes('Украинский')) {
                                         cy.wrap(li).click();
@@ -99,7 +114,11 @@ const getStreams = async ({ url, callback }: { url: string; callback: (outputIte
                                             translations.push({
                                                 resolutions: streamStringToObject(streamStr),
                                                 translation: li.text().trim(),
-                                                data_translator_id: li.attr('data-translator_id'),
+                                                data_translator_id: li.attr('data-translator_id') || '',
+                                                data_ads: li.attr('data-ads') || '',
+                                                data_camrip: li.attr('data-camrip') || '',
+                                                data_director: li.attr('data-director') || '',
+                                                encoded_video_url: obj.url,
                                             });
                                         });
                                     }

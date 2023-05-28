@@ -30,14 +30,28 @@ export const groupSearchMovieByIdAsync = async (imdb_id: string): Promise<IQuery
     if (error) {
         return [, error];
     }
+    // TODO optimize it
+    const [allRelations, allRelationsError] = await dbService.rezkaMovieTranslation.getRezkaMovieTranslationAllAsync({});
+    if (allRelationsError) {
+        return [, allRelationsError];
+    }
+
+    const [allTranslation, allTranslationError] = await dbService.translation.getTranslationAllAsync({});
+    if (allTranslationError) {
+        return [, allTranslationError];
+    }
+
     if (movies?.length) {
         const [imdb, imdbError] = await dbService.imdb.getImdbByIdAsync(imdb_id);
         if (imdbError) {
             return [, imdbError];
         }
+
+        const translationRelation = allRelations?.find((tr) => tr.rezka_movie_id === movies[0].id);
         const data: IGroupMovieResponse = {
             rezka_movie: movies[0],
             imdb_info: imdb as IImdbResponse,
+            translation: allTranslation?.find((translation) => translation.id === translationRelation?.translation_id),
         };
 
         return [data];

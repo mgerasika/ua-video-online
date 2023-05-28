@@ -24,10 +24,15 @@ function waitForStreams() {
 					// console.log('newStreamId', newStreamId);
 					const newStreams = window.o.FGeRtNzK(newStreamId);
 					// console.log('newStreamArray', newStreams);
-					const div = document.createElement('div');
-					div.id = "result";
-					div.innerHTML = newStreams;
-					document.body.appendChild(div);
+					const resultDiv = document.createElement('div');
+					resultDiv.id = "result";
+					resultDiv.innerHTML = newStreams;
+					document.body.appendChild(resultDiv);
+
+					const rawResultDiv = document.createElement('div');
+					rawResultDiv.id = "rawResult";
+					rawResultDiv.innerHTML = newStreamId;
+					document.body.appendChild(rawResultDiv);
 
 					window.o._translatorsList = document.getElementById('translators-list')
 				} else {

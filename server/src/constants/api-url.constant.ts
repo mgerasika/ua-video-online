@@ -15,19 +15,22 @@ interface IApiUrl {
 
             id: (id?: string) => IUrlItem;
         };
+        rezkaMovieTranslation: IUrlItem;
         stream: {
+            id: (id?: string) => IUrlItem;
+        };
+        translation: {
             id: (id?: string) => IUrlItem;
         };
         tools: {
             setup: IUrlItem;
         };
-        cypress: {
-            streams: IUrlItem;
-            imdb: IUrlItem;
-        };
+
         parser: {
             rezkaAll: IUrlItem;
             rezkaDetails: IUrlItem;
+            cypressStreams: IUrlItem;
+            cypressImdb: IUrlItem;
         };
     };
 }
@@ -35,10 +38,6 @@ interface IApiUrl {
 export const API_URL = createUrls<IApiUrl>({
     swagger: EMPTY_URL_ITEM,
     api: {
-        cypress: {
-            streams: EMPTY_URL_ITEM,
-            imdb: EMPTY_URL_ITEM,
-        },
         imdb: {
             id: (id?: string) => EMPTY_URL_ITEM,
             search: EMPTY_URL_ITEM,
@@ -48,7 +47,11 @@ export const API_URL = createUrls<IApiUrl>({
             searchRezkaWithoutStream: EMPTY_URL_ITEM,
             id: (id?: string) => EMPTY_URL_ITEM,
         },
+        rezkaMovieTranslation: EMPTY_URL_ITEM,
         stream: {
+            id: (id?: string) => EMPTY_URL_ITEM,
+        },
+        translation: {
             id: (id?: string) => EMPTY_URL_ITEM,
         },
         groupMovie: {
@@ -60,6 +63,8 @@ export const API_URL = createUrls<IApiUrl>({
         parser: {
             rezkaAll: EMPTY_URL_ITEM,
             rezkaDetails: EMPTY_URL_ITEM,
+            cypressStreams: EMPTY_URL_ITEM,
+            cypressImdb: EMPTY_URL_ITEM,
         },
     },
 });

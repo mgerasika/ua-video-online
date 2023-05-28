@@ -1,6 +1,16 @@
-import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, RelationId, OneToMany } from 'typeorm';
+import {
+    Entity,
+    Column,
+    PrimaryGeneratedColumn,
+    JoinColumn,
+    ManyToOne,
+    RelationId,
+    OneToMany,
+    ManyToMany,
+    JoinTable,
+} from 'typeorm';
 import { ImdbDto } from './imdb.dto';
-import { StreamDto } from './stream.dto';
+import { ITranslationDto, TranslationDto } from './translation.dto';
 
 export enum ERezkaVideoType {
     film = 'film',
@@ -25,6 +35,7 @@ export interface IRezkaMovieDto {
     imdb_id?: string;
 
     rezka_imdb_id: string;
+
 }
 
 @Entity('rezka_movie')

@@ -1,6 +1,6 @@
 import {
   IGroupMovieResponse,
-  IStreamResponse,
+  IRezkaInfoByIdResponse,
   api,
 } from '../../api/api.generated'
 import { MovieDetailed } from '../../features/movie-detailed/components/movie-detailed.component'
@@ -8,10 +8,10 @@ import { setTimeoutAsync } from '../../utils/set-timeout.util'
 
 interface IProps {
   movie: IGroupMovieResponse
-  encoded_video_url: string
+  rezka_cherio_info: IRezkaInfoByIdResponse
 }
-export default function Movie({ movie, encoded_video_url }: IProps) {
-  return <MovieDetailed movie={movie} encoded_video_url={encoded_video_url} />
+export default function Movie({ movie, rezka_cherio_info }: IProps) {
+  return <MovieDetailed movie={movie} rezka_cherio_info={rezka_cherio_info} />
 }
 
 export async function getStaticProps({
@@ -34,7 +34,7 @@ export async function getStaticProps({
   return {
     props: {
       movie: groupMovie.data,
-      encoded_video_url: detailedInfo.data.cdn_encoded_video_url,
+      rezka_cherio_info: detailedInfo.data,
     },
     revalidate: 60 * 60 * 12, // in seconds
   }

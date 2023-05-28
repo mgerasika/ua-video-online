@@ -65,8 +65,8 @@ export const searchImdbMovieInfoAsync = async (
     year?: string,
     id?: string,
 ): Promise<IQueryReturn<IImdbResultResponse>> => {
-    const apiKey1 = '1768a885'; //mgerasika@gmail.com
-    //const apiKey2 = 'f06cfff4'; //mger@ciklum.com
+    //const apiKey1 = '1768a885'; //mgerasika@gmail.com
+    const apiKey2 = 'f06cfff4'; //mger@ciklum.com
     //const apiKey3 = '7a355028'; //oddbox.cypress@gmail.com
 
     const p = id ? { i: id } : { t: enMovieName, y: year };
@@ -75,7 +75,7 @@ export const searchImdbMovieInfoAsync = async (
             method: 'get',
             url: 'http://www.omdbapi.com/',
             params: {
-                apikey: apiKey1,
+                apikey: apiKey2,
                 type: 'movie',
                 ...p,
             },

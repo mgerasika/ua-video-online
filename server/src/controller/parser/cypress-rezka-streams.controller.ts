@@ -17,6 +17,10 @@ export interface ITranslation {
     resolutions: IResolutionItem[];
     translation: string;
     data_translator_id: string;
+    data_camrip: string;
+    data_ads: string;
+	data_director: string;
+	encoded_video_url: string;
 }
 
 export interface IResolutionItem {
@@ -24,10 +28,15 @@ export interface IResolutionItem {
     streams: string[];
 }
 
+// TODO fix swagger  body: {
+//     href: string;
+// };
+
+interface ICypressStreamBody {
+    href: string;
+}
 interface IRequest extends IExpressRequest {
-    body: {
-        href: string;
-    };
+    body: ICypressStreamBody;
     query: {
         page?: number;
         limit: number;
@@ -36,7 +45,7 @@ interface IRequest extends IExpressRequest {
 
 interface IResponse extends IExpressResponse<IVideoInfoResult, void> {}
 
-app.post(API_URL.api.cypress.streams.toString(), async (req: IRequest, res: IResponse) => {
+app.post(API_URL.api.parser.cypressStreams.toString(), async (req: IRequest, res: IResponse) => {
     const [data, error] = await getCypressRezkaStreamsAsync(decodeURIComponent(req.body.href));
     if (error) {
         return res.status(400).send(error);
@@ -52,6 +61,7 @@ export const getCypressRezkaStreamsAsync = async (href: string): Promise<IQueryR
                     CYPRESS_NO_COMMAND_LOG: 1,
                     URL: href,
                 },
+                quiet: true,
                 spec: './cypress/integration/get-rezka-streams.spec.ts',
             })
             .then((results: any) => {
