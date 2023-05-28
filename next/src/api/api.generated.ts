@@ -36,7 +36,38 @@ export interface IImdbResponse {
   poster: string
   imdb_rating: number
   year: number
-  json: string
+  jsonObj: IImdbResultResponse
+}
+export interface IImdbResultResponse {
+  Title: string
+  Year: string
+  Rated: string
+  Released: string
+  Runtime: string
+  Genre: string
+  Director: string
+  Writer: string
+  Actors: string
+  Plot: string
+  Language: string
+  Country: string
+  Awards: string
+  Poster: string
+  Ratings: IImdbRating[]
+  Metascore: string
+  imdbRating: string
+  imdbVotes: string
+  imdbID: string
+  Type: string
+  DVD: string
+  BoxOffice: string
+  Production: string
+  Website: string
+  Response: string
+}
+export interface IImdbRating {
+  Source: string
+  Value: string
 }
 export interface IRezkaMovieResponse {
   id: string
@@ -70,6 +101,7 @@ export interface IPostImdbBody {
   poster: string
   imdb_rating: number
   year: number
+  jsonObj: IImdbResultResponse
   json: string
 }
 export interface IPutImdbBody {
@@ -77,43 +109,13 @@ export interface IPutImdbBody {
   poster: string
   imdb_rating: number
   year: number
+  jsonObj: IImdbResultResponse
   json: string
 }
 export interface ISearchImdbBody {
   enName: string
   year: string
   id?: string
-}
-export interface IImdbResultResponse {
-  Title: string
-  Year: string
-  Rated: string
-  Released: string
-  Runtime: string
-  Genre: string
-  Director: string
-  Writer: string
-  Actors: string
-  Plot: string
-  Language: string
-  Country: string
-  Awards: string
-  Poster: string
-  Ratings: IImdbRating[]
-  Metascore: string
-  imdbRating: string
-  imdbVotes: string
-  imdbID: string
-  Type: string
-  DVD: string
-  BoxOffice: string
-  Production: string
-  Website: string
-  Response: string
-}
-export interface IImdbRating {
-  Source: string
-  Value: string
 }
 export interface IError {
   message: string

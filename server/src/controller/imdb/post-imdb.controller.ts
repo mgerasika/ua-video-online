@@ -4,7 +4,9 @@ import { typeOrmAsync } from '@server/utils/type-orm-async.util';
 import { API_URL } from '@server/constants/api-url.constant';
 import { IImdbResponse } from './get-imdb-list.controller';
 
-interface IPostImdbBody extends IImdbResponse {}
+interface IPostImdbBody extends IImdbResponse {
+    json: string;
+}
 interface IRequest extends IExpressRequest {
     body: IPostImdbBody;
 }

@@ -15,6 +15,7 @@ import { ImdbDto } from '@server/dto/imdb.dto';
 import { IResolutionItem } from '../parser/cypress-rezka-streams.controller';
 import { CONST } from '@server/constants/const.contant';
 import { data } from 'cypress/types/jquery';
+import { ITranslationDto } from '@server/dto/translation.dto';
 
 export interface ISetupBody {
     searchImdb: boolean;
@@ -192,7 +193,7 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
         logs.push('download streams for ' + dbMovies.length);
         // imdb id
         await oneByOneAsync(
-            dbMovies.filter((f) => f.rezka_imdb_id),
+            dbMovies.filter((f) => f.rezka_imdb_id).sort((a, b) => b.year - a.year),
             async (dbMovie) => {
                 logs.push('imdbId', dbMovie.rezka_imdb_id);
                 const [allDbTranslations] = await dbService.rezkaMovieTranslation.getRezkaMovieTranslationAllAsync({
@@ -208,7 +209,7 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
                     return;
                 } else if (parseItem) {
                     const uaTranslations = parseItem.translations.filter((translation) =>
-                        translation.translation.includes('Украинский'),
+                        translation.translation.includes('Укр'),
                     );
                     logs.push(`parse cypress success translations = `, uaTranslations.length);
                     await oneByOneAsync(
@@ -219,7 +220,7 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
                             );
                             logs.push('dbTranslation', dbTranslation);
 
-                            let newTranslation = dbTranslation;
+                            let newTranslation: ITranslationDto | undefined = dbTranslation;
                             if (dbTranslationError) {
                                 logs.push('dbTranslationError ' + translation.data_translator_id, dbTranslationError);
                                 const [postTranslation, postTranslationError] =

@@ -1054,7 +1054,7 @@
           "poster",
           "imdb_rating",
           "year",
-          "json"
+          "jsonObj"
         ],
         "properties": {
           "id": {
@@ -1072,190 +1072,8 @@
           "year": {
             "type": "integer"
           },
-          "json": {
-            "type": "string"
-          }
-        }
-      },
-      "IRezkaMovieResponse": {
-        "type": "object",
-        "required": [
-          "id",
-          "en_name",
-          "url_id",
-          "year",
-          "href",
-          "video_type",
-          "rezka_imdb_id"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "en_name": {
-            "type": "string"
-          },
-          "url_id": {
-            "type": "string"
-          },
-          "year": {
-            "type": "integer"
-          },
-          "href": {
-            "type": "string"
-          },
-          "video_type": {
-            "type": "ERezkaVideoType"
-          },
-          "imdb": {
-            "type": "ImdbDto"
-          },
-          "imdb_id": {
-            "type": "string"
-          },
-          "rezka_imdb_id": {
-            "type": "string"
-          }
-        }
-      },
-      "ERezkaVideoType": {
-        "type": "string",
-        "enum": [
-          "film",
-          "cartoon"
-        ]
-      },
-      "ImdbDto": {
-        "type": "object",
-        "required": [
-          "id",
-          "en_name",
-          "poster",
-          "imdb_rating",
-          "year",
-          "json"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "en_name": {
-            "type": "string"
-          },
-          "poster": {
-            "type": "string"
-          },
-          "imdb_rating": {
-            "type": "integer"
-          },
-          "year": {
-            "type": "integer"
-          },
-          "json": {
-            "type": "string"
-          }
-        }
-      },
-      "ITranslationResponse": {
-        "type": "object",
-        "required": [
-          "id",
-          "data_ads",
-          "data_camrip",
-          "data_director",
-          "label"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "data_ads": {
-            "type": "string"
-          },
-          "data_camrip": {
-            "type": "string"
-          },
-          "data_director": {
-            "type": "string"
-          },
-          "label": {
-            "type": "string"
-          }
-        }
-      },
-      "IPostImdbBody": {
-        "type": "object",
-        "required": [
-          "id",
-          "en_name",
-          "poster",
-          "imdb_rating",
-          "year",
-          "json"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "en_name": {
-            "type": "string"
-          },
-          "poster": {
-            "type": "string"
-          },
-          "imdb_rating": {
-            "type": "integer"
-          },
-          "year": {
-            "type": "integer"
-          },
-          "json": {
-            "type": "string"
-          }
-        }
-      },
-      "IPutImdbBody": {
-        "type": "object",
-        "required": [
-          "en_name",
-          "poster",
-          "imdb_rating",
-          "year",
-          "json"
-        ],
-        "properties": {
-          "en_name": {
-            "type": "string"
-          },
-          "poster": {
-            "type": "string"
-          },
-          "imdb_rating": {
-            "type": "integer"
-          },
-          "year": {
-            "type": "integer"
-          },
-          "json": {
-            "type": "string"
-          }
-        }
-      },
-      "ISearchImdbBody": {
-        "type": "object",
-        "required": [
-          "enName",
-          "year"
-        ],
-        "properties": {
-          "enName": {
-            "type": "string"
-          },
-          "year": {
-            "type": "string"
-          },
-          "id": {
-            "type": "string"
+          "jsonObj": {
+            "type": "IImdbResultResponse"
           }
         }
       },
@@ -1377,6 +1195,196 @@
             "type": "string"
           },
           "Value": {
+            "type": "string"
+          }
+        }
+      },
+      "IRezkaMovieResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "en_name",
+          "url_id",
+          "year",
+          "href",
+          "video_type",
+          "rezka_imdb_id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "en_name": {
+            "type": "string"
+          },
+          "url_id": {
+            "type": "string"
+          },
+          "year": {
+            "type": "integer"
+          },
+          "href": {
+            "type": "string"
+          },
+          "video_type": {
+            "type": "ERezkaVideoType"
+          },
+          "imdb": {
+            "type": "ImdbDto"
+          },
+          "imdb_id": {
+            "type": "string"
+          },
+          "rezka_imdb_id": {
+            "type": "string"
+          }
+        }
+      },
+      "ERezkaVideoType": {
+        "type": "string",
+        "enum": [
+          "film",
+          "cartoon"
+        ]
+      },
+      "ImdbDto": {
+        "type": "object",
+        "required": [
+          "id",
+          "en_name",
+          "poster",
+          "imdb_rating",
+          "year",
+          "json"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "en_name": {
+            "type": "string"
+          },
+          "poster": {
+            "type": "string"
+          },
+          "imdb_rating": {
+            "type": "integer"
+          },
+          "year": {
+            "type": "integer"
+          },
+          "json": {
+            "type": "string"
+          }
+        }
+      },
+      "ITranslationResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "data_ads",
+          "data_camrip",
+          "data_director",
+          "label"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "data_ads": {
+            "type": "string"
+          },
+          "data_camrip": {
+            "type": "string"
+          },
+          "data_director": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      },
+      "IPostImdbBody": {
+        "type": "object",
+        "required": [
+          "id",
+          "en_name",
+          "poster",
+          "imdb_rating",
+          "year",
+          "jsonObj",
+          "json"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "en_name": {
+            "type": "string"
+          },
+          "poster": {
+            "type": "string"
+          },
+          "imdb_rating": {
+            "type": "integer"
+          },
+          "year": {
+            "type": "integer"
+          },
+          "jsonObj": {
+            "type": "IImdbResultResponse"
+          },
+          "json": {
+            "type": "string"
+          }
+        }
+      },
+      "IPutImdbBody": {
+        "type": "object",
+        "required": [
+          "en_name",
+          "poster",
+          "imdb_rating",
+          "year",
+          "jsonObj",
+          "json"
+        ],
+        "properties": {
+          "en_name": {
+            "type": "string"
+          },
+          "poster": {
+            "type": "string"
+          },
+          "imdb_rating": {
+            "type": "integer"
+          },
+          "year": {
+            "type": "integer"
+          },
+          "jsonObj": {
+            "type": "IImdbResultResponse"
+          },
+          "json": {
+            "type": "string"
+          }
+        }
+      },
+      "ISearchImdbBody": {
+        "type": "object",
+        "required": [
+          "enName",
+          "year"
+        ],
+        "properties": {
+          "enName": {
+            "type": "string"
+          },
+          "year": {
+            "type": "string"
+          },
+          "id": {
             "type": "string"
           }
         }

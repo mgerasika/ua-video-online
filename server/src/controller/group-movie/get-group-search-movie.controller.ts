@@ -43,16 +43,20 @@ export const groupSearchMovieByIdAsync = async (imdb_id: string): Promise<IQuery
 
     if (movies?.length) {
         const [imdb, imdbError] = await dbService.imdb.getImdbByIdAsync(imdb_id);
-        if (imdbError) {
-            return [, imdbError];
+        if (imdbError || !imdb) {
+            return [, imdbError || 'empty imdb'];
         }
 
         const translationRelation = allRelations?.find((tr) => tr.rezka_movie_id === movies[0].id);
         const data: IGroupMovieResponse = {
             rezka_movie: movies[0],
-            imdb_info: imdb as IImdbResponse,
+            imdb_info: {
+                ...imdb,
+                jsonObj: JSON.parse(imdb.json),
+            },
             translation: allTranslation?.find((translation) => translation.id === translationRelation?.translation_id),
         };
+        delete (data.imdb_info as any).json;
 
         return [data];
     }

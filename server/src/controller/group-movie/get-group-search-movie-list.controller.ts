@@ -57,11 +57,16 @@ export const groupSearchMoviesAsync = async (): Promise<IQueryReturn<IGroupMovie
             }
             const translationRelation = allRelations?.find((tr) => tr.rezka_movie_id === movie.id);
 
-            return {
+            const data = {
                 rezka_movie: movie,
-                imdb_info: imdb,
+                imdb_info: {
+                    ...imdb,
+                    jsonObj: JSON.parse(imdb.json),
+                },
                 translation: allTranslation?.find((translation) => translation.id === translationRelation?.translation_id),
             };
+            delete (data.imdb_info as any).json;
+            return data;
         })
         .filter((m) => m?.imdb_info && m.translation)
         .sort((a, b) => (b?.imdb_info.imdb_rating || 0) - (a?.imdb_info.imdb_rating || 0));

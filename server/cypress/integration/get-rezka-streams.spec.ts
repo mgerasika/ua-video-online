@@ -106,22 +106,20 @@ const getStreams = async ({ url, callback }: { url: string; callback: (outputIte
                                     });
                                     return;
                                 } else {
-                                    if (li.text().includes('Украинский')) {
-                                        cy.wrap(li).click();
-                                        cy.wait('@get_cdn_series').then((intercept) => {
-                                            const obj = JSON.parse(intercept?.response?.body);
-                                            const streamStr = (wnd as any).o.FGeRtNzK(obj.url);
-                                            translations.push({
-                                                resolutions: streamStringToObject(streamStr),
-                                                translation: li.text().trim(),
-                                                data_translator_id: li.attr('data-translator_id') || '',
-                                                data_ads: li.attr('data-ads') || '',
-                                                data_camrip: li.attr('data-camrip') || '',
-                                                data_director: li.attr('data-director') || '',
-                                                encoded_video_url: obj.url,
-                                            });
+                                    cy.wrap(li).click();
+                                    cy.wait('@get_cdn_series').then((intercept) => {
+                                        const obj = JSON.parse(intercept?.response?.body);
+                                        const streamStr = (wnd as any).o.FGeRtNzK(obj.url);
+                                        translations.push({
+                                            resolutions: streamStringToObject(streamStr),
+                                            translation: li.text().trim(),
+                                            data_translator_id: li.attr('data-translator_id') || '',
+                                            data_ads: li.attr('data-ads') || '',
+                                            data_camrip: li.attr('data-camrip') || '',
+                                            data_director: li.attr('data-director') || '',
+                                            encoded_video_url: obj.url,
                                         });
-                                    }
+                                    });
                                 }
                             })
                             .then(() => {

@@ -3,22 +3,29 @@ import 'twin.macro'
 import Link from 'next/link'
 import {
   IGroupMovieResponse,
+  IImdbResponse,
   IResolutionItem,
   IRezkaInfoByIdResponse,
+  IRezkaMovieResponse,
+  ITranslationResponse,
   api,
 } from '../../../api/api.generated'
 import { VideoPlayer } from './video-player.component'
 import { useEncodeUrl } from '../../../hooks/use-encode-url.hook'
 import { convertRawUrlToObject } from '../../../utils/convert-raw-url-to-object.util'
 import { Loading } from '../../loading/loading.component'
-import { useMutation } from '../../../utils/use-mutation.hook'
+import { useMutation } from '../../../hooks/use-mutation.hook'
 
 interface IProps {
-  rezka_cherio_info: IRezkaInfoByIdResponse
-  movie: IGroupMovieResponse | undefined
+  rezka_cherio_info: IRezkaInfoByIdResponse | undefined
+  imdb_info: IImdbResponse | undefined
+  rezka_movie: IRezkaMovieResponse | undefined
+  translation?: ITranslationResponse | undefined
 }
 export const MovieDetailed = ({
-  movie,
+  imdb_info,
+  rezka_movie,
+  translation,
   rezka_cherio_info,
 }: IProps): JSX.Element => {
   const [resolutionItems, setResolutionItems] = useState<IResolutionItem[]>()
@@ -31,7 +38,7 @@ export const MovieDetailed = ({
 
   useEffect(() => {
     encodeFn({
-      encoded_video_url: rezka_cherio_info.cdn_encoded_video_url,
+      encoded_video_url: rezka_cherio_info?.cdn_encoded_video_url || '',
       callback: handleEncodeFinish,
     })
   }, [rezka_cherio_info])
@@ -52,7 +59,7 @@ export const MovieDetailed = ({
     data: newCypressStream,
     loading,
   } = useMutation(() =>
-    api.parserCypressStreamsPost({ href: movie?.rezka_movie.href || '' }, {}),
+    api.parserCypressStreamsPost({ href: rezka_movie?.href || '' }, {}),
   )
 
   useEffect(() => {
@@ -87,34 +94,31 @@ export const MovieDetailed = ({
             Back
           </Link>
           <h3 tw="text-white w-full text-center [font-size:30px] ">
-            {movie?.imdb_info.en_name}
+            {imdb_info?.en_name}&nbsp;&nbsp;{imdb_info?.year}
           </h3>
         </div>
         <div tw="flex flex-col lg:flex-row">
           <div tw="relative order-2 lg:order-1 mx-auto">
             {streamUrl ? (
               <>
-                <VideoPlayer
-                  imgSrc={movie?.imdb_info.poster || ''}
-                  url={streamUrl}
-                />
+                <VideoPlayer imgSrc={imdb_info?.poster || ''} url={streamUrl} />
                 <button
                   onClick={handleReload}
-                  tw="text-white border-solid border-white p-2 mx-2 [border-width: 1px]"
+                  tw="text-white border-solid border-white p-2 mx-2 [border-width: 1px] w-full"
                 >
                   Reload stream (about ~15seconds)
                 </button>
               </>
             ) : (
               <img
-                src={movie?.imdb_info.poster || ''}
+                src={imdb_info?.poster || ''}
                 tw="min-w-[300px] w-[300px] h-[429px] [object-fit: cover]"
                 alt=""
               />
             )}
 
-            <p tw="text-white [font-size: larger] top-2 left-2 absolute bg-black px-2 py-1 border-solid border-white [border-width: 1px]">
-              {movie?.imdb_info.imdb_rating}
+            <p tw="text-white [font-size: larger] top-4 left-4 absolute bg-black px-2 py-1 border-solid border-white [border-width: 1px]">
+              {imdb_info?.imdb_rating}
             </p>
           </div>
         </div>

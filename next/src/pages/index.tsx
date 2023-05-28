@@ -1,6 +1,7 @@
 import tw from 'twin.macro'
 import {
   IGroupMovieResponse,
+  IImdbResponse,
   ISearchRezkaMovieResponse,
   api,
 } from '../api/api.generated'
@@ -9,50 +10,18 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useScrollEnd } from '../use-scroll-end.hook'
+import { MoviesContainer } from '../features/movies/containers/movies.container'
 
 interface IProps {
-  page: string
   allMovies: IGroupMovieResponse[]
+  genres: string[]
 }
-const PAGE_SIZE = 20
 
-const App = ({ allMovies }: IProps) => {
-  const [page, setPage] = useState(0)
-
-  const movies = useMemo(() => {
-    return allMovies.slice(
-      0,
-      Math.min(allMovies.length, PAGE_SIZE * (page + 1)),
-    )
-  }, [page])
-
-  const handleScrollEnd = useCallback(() => {
-    setPage(prev => {
-      const newVal = prev + 1
-      sessionStorage.setItem('page', newVal + '')
-      return newVal
-    })
-  }, [page])
-
-  useEffect(() => {
-    const newPage = sessionStorage.getItem('page')
-    if (newPage) {
-      setPage(+newPage)
-    }
-  }, [])
-
-  useScrollEnd({
-    onScrollEnd: handleScrollEnd,
-  })
-
+const App = ({ allMovies, genres }: IProps) => {
+  console.log('genres', genres)
   return (
     <div>
-      <MoviesComponent movies={movies} />
-      <div tw="p-6 text-center text-2xl">
-        <div onClick={handleScrollEnd} tw="text-white ">
-          Next
-        </div>
-      </div>
+      <MoviesContainer allMovies={allMovies} genres={genres} />
     </div>
   )
 }
@@ -61,10 +30,21 @@ export async function getStaticProps(): Promise<{
   props: Omit<IProps, 'page'>
 }> {
   const movies = await api.groupMovieGet()
-
+  const imdbInfos = movies.data.map(movie => movie.imdb_info)
   return {
     props: {
-      allMovies: movies.data,
+      genres: imdbInfos
+        .map(imdb => imdb.jsonObj.Genre)
+        .join(',')
+        .split(',')
+        .map(f => f.trim())
+        .reduce((acc: string[], it: string) => {
+          if (!acc.includes(it)) {
+            acc.push(it)
+          }
+          return acc
+        }, []),
+      allMovies: movies.data || [],
     },
   }
 }

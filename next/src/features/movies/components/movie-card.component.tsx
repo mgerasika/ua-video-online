@@ -30,7 +30,7 @@ export const MovieCard = ({ movie, hasStream }: IProps): JSX.Element => {
         )}
 
         <p tw="text-white [font-size: larger] pt-2 text-center">
-          {movie.imdb_info.en_name}
+          {movie.imdb_info.en_name} &nbsp;&nbsp;{movie.imdb_info.year}
         </p>
       </div>
     </Link>

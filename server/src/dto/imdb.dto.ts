@@ -1,3 +1,4 @@
+import { IImdbResultResponse } from '@server/controller/imdb/search-imdb.controller';
 import { Entity, Column, PrimaryGeneratedColumn, PrimaryColumn, Check } from 'typeorm';
 
 export interface IImdbDto {
@@ -11,10 +12,10 @@ export interface IImdbDto {
 
     year: number;
 
-    json: string;
+    jsonObj: IImdbResultResponse;
 }
 @Entity('imdb')
-export class ImdbDto implements IImdbDto {
+export class ImdbDto implements Omit<IImdbDto, 'jsonObj'> {
     @PrimaryColumn('text', { nullable: false, unique: true })
     id!: string;
 

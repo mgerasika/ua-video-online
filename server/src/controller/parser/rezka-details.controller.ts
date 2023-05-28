@@ -33,18 +33,6 @@ app.post(API_URL.api.parser.rezkaDetails.toString(), async (req: IRequest, res: 
     return res.send(data);
 });
 
-//tt2380307 coco videoId=25701
-//tt0179955 pastka for cats videoId=12687
-//works
-//  headers: {
-//                     ...REZKA_HEADERS.headers,
-//                     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-//                     Cookie: `SL_G_WPT_TO=en; SL_GWPT_Show_Hide_tmp=1; SL_wptGlobTipTmp=1; PHPSESSID=3p8hdhuc1f2k5m295ao64qat13; dle_user_taken=1; dle_user_token=30f358e2681322bd118c71ab06481604; _ym_uid=1684426440709605085; _ym_d=1684426440; _ym_isad=1; _ym_hostIndex=0-3%2C1-0; _ym_visorc=b`,
-//                     // `PHPSESSID=${phpSessionId}`,
-//                     Origin: 'https://rezka.ag',
-//                     Referrer: 'https://rezka.ag/series/documentary/57418-makgregor-navsegda-2023.html',
-//                 },
-//                 data: `id=${videoId}&translator_id=358&is_camrip=0&is_ads=0&is_director=0&favs=7e980c10-dae0-4b55-a45a-2315678e8e7e&action=get_movie`,
 export const parseRezkaDetailsAsync = async (imdb_id: string): Promise<IQueryReturn<IRezkaInfoByIdResponse>> => {
     const [dbMovie, dbMovieError] = await dbService.rezkaMovie.getRezkaMoviesAllAsync({ imdb_id });
     if (dbMovieError) {
@@ -58,7 +46,7 @@ export const parseRezkaDetailsAsync = async (imdb_id: string): Promise<IQueryRet
     if (dbTranslationError) {
         return [undefined, 'dbTranslationError ' + dbTranslationError];
     }
-    if (!dbTranslations || dbTranslations?.length !== 1) {
+    if (!dbTranslations || dbTranslations?.length === 0) {
         return [undefined, `Found wrong count of translations ${dbTranslations?.length}`];
     }
     console.log('dbTranslation', dbTranslations);
@@ -83,7 +71,8 @@ export const parseRezkaDetailsAsync = async (imdb_id: string): Promise<IQueryRet
     const phpSessionId = cookies.split('=').pop() || '';
 
     console.log('href', href);
-    console.log('videoId', videoId);
+
+    // TODO refactor -return array
     const [cdnResponse, cdnError] = await toQuery(
         async () =>
             await axios({
