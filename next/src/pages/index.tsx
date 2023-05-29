@@ -18,7 +18,6 @@ interface IProps {
 }
 
 const App = ({ allMovies, genres }: IProps) => {
-  console.log('genres', genres)
   return (
     <div>
       <MoviesContainer allMovies={allMovies} genres={genres} />

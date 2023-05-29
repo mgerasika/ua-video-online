@@ -71,10 +71,7 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
 
         await oneByOneAsync(dbMovies, async (movieItem) => {
             const imdbInfo = imdbInfoItems.find(
-                (imdbItem) =>
-                    imdbItem.en_name === movieItem.en_name ||
-                    imdbItem.id === movieItem.rezka_imdb_id ||
-                    imdbItem.id === movieItem.imdb_id,
+                (imdbItem) => imdbItem.en_name === movieItem.en_name || imdbItem.id === movieItem.rezka_imdb_id,
             );
             if (imdbInfo) {
                 return;

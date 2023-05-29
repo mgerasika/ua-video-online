@@ -17,7 +17,7 @@ import { ENV } from '../env'
 const API_SERVER_URL =
   process.env.NODE_ENV === 'development'
     ? ENV.LOCAL
-    : 'http://178.210.131.101:8005/'
+    : ENV.REMOTE_NGINX
 
 // DON'T REMOVE THIS COMMENTS!!! Code between comments auto-generated
 // INSERT START

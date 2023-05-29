@@ -69,7 +69,7 @@ export const groupSearchMoviesAsync = async (): Promise<IQueryReturn<IGroupMovie
             return data;
         })
         .filter((m) => m?.imdb_info && m.translation)
-        .sort((a, b) => (b?.imdb_info.imdb_rating || 0) - (a?.imdb_info.imdb_rating || 0));
+        .sort((a, b) => (Number(b?.imdb_info.imdb_rating) || 0) - (Number(a?.imdb_info.imdb_rating) || 0));
     console.log('result', data?.length);
     return [data as IGroupMovieResponse[]];
 };

@@ -5,6 +5,12 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 // app.use(bodyParser.text({ type: '*/*' }));
 app.use(bodyParser.json());
+// app.use(
+//     cors({
+//         origin: 'ua-video-online.web.app',
+//         optionsSuccessStatus: 200,
+//     }),
+// );
 app.use(cors());
 
 const morgan = require('morgan');

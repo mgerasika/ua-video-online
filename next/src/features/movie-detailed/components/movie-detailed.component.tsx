@@ -60,18 +60,6 @@ export const MovieDetailed = ({
           {streamUrl ? (
             <>
               <VideoPlayer imgSrc={imdb_info?.poster || ''} url={streamUrl} />
-              <button
-                onClick={onReloadV1}
-                tw="text-white border-solid border-white p-2 m-2 [border-width: 1px] "
-              >
-                Reload stream (about ~15seconds)
-              </button>
-              <button
-                onClick={onReloadV2}
-                tw="text-white border-solid border-white p-2 m-2 [border-width: 1px] "
-              >
-                Reload stream (about ~2seconds)
-              </button>
             </>
           ) : (
             <img
@@ -84,6 +72,19 @@ export const MovieDetailed = ({
           <p tw="text-white [font-size: larger] top-4 left-4 absolute bg-black px-2 py-1 border-solid border-white [border-width: 1px]">
             {imdb_info?.imdb_rating}
           </p>
+
+          <button
+            onClick={onReloadV1}
+            tw="text-white border-solid border-white p-2 m-2 [border-width: 1px] "
+          >
+            Reload stream (about ~15seconds)
+          </button>
+          <button
+            onClick={onReloadV2}
+            tw="text-white border-solid border-white p-2 m-2 [border-width: 1px] "
+          >
+            Reload stream (about ~2seconds)
+          </button>
         </div>
       </div>
     </div>

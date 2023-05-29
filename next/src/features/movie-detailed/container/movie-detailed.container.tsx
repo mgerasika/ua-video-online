@@ -41,6 +41,12 @@ export const MovieDetailedContainer = ({
     api.parserRezkaDetailsPost({ imdb_id: imdb_info?.id || '' }),
   )
 
+  useEffect(() => {
+    if (!cdn_encode_video_url) {
+      rezkaDetailsExecute()
+    }
+  }, [cdn_encode_video_url, rezkaDetailsExecute])
+
   const handleReloadV1 = useCallback(() => {
     parseCypressExecute()
   }, [])

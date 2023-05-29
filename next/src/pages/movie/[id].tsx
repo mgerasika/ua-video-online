@@ -17,7 +17,11 @@ interface IProps {
   imdb_info: IImdbResponse | undefined
   rezka_movie_href: string | undefined
 }
-export default function Movie({ cdn_encode_video_url, imdb_info, rezka_movie_href }: IProps) {
+export default function Movie({
+  cdn_encode_video_url,
+  imdb_info,
+  rezka_movie_href,
+}: IProps) {
   return (
     <MovieDetailedContainer
       rezka_movie_href={rezka_movie_href}
@@ -38,7 +42,9 @@ export async function getStaticProps({
   const [groupMovie] = await toQuery(() => api.groupMovieIdGet(params.id, {}))
   const [detailedInfo] =
     process.env.NEXT_PHASE === PHASE_PRODUCTION_BUILD
-      ? await Promise.resolve([])
+      ? await Promise.resolve([
+          { cdn_encoded_video_url: '' } as IRezkaInfoByIdResponse,
+        ])
       : await toQuery(() =>
           api.parserRezkaDetailsPost({
             imdb_id: groupMovie?.imdb_info.id || '',

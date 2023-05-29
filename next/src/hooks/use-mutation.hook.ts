@@ -24,7 +24,7 @@ export function useMutation<T>(
         setLoading(false)
         setError(err)
       })
-  }, [callback])
+  }, [])
   return {
     data,
     error,
