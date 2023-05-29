@@ -4,8 +4,6 @@ import 'twin.macro'
 
 const App = ({ Component, pageProps }: AppProps) => (
   <div tw="bg-black min-h-screen">
-    <GlobalStyles />
-    <Component {...pageProps} />
     <div
       style={{
         zIndex: '0',
@@ -13,7 +11,11 @@ const App = ({ Component, pageProps }: AppProps) => (
         minHeight: '0px !important',
       }}
       id="cdnplayer"
+      tw="mb-4"
     ></div>
+    <GlobalStyles />
+    <Component {...pageProps} />
+
     <script type="text/javascript" src="/static/eval-code.js" defer></script>
     <script
       type="text/javascript"

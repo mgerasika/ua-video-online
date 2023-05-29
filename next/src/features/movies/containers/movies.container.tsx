@@ -11,7 +11,7 @@ import { MoviesComponent } from '../components/movies.component'
 import { IMovieFilter } from '../../../interfaces/movie-filter.interface'
 import { useScrollEnd } from '../../../use-scroll-end.hook'
 
-const PAGE_SIZE = 5
+const PAGE_SIZE = 20
 
 interface IProps {
   allMovies: IGroupMovieResponse[]

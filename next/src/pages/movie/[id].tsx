@@ -10,25 +10,19 @@ import {
 import { MovieDetailed } from '../../features/movie-detailed/components/movie-detailed.component'
 import { setTimeoutAsync } from '../../utils/set-timeout.util'
 import { toQuery } from '../../utils/to-query.hook'
+import { MovieDetailedContainer } from '../../features/movie-detailed/container/movie-detailed.container'
 
 interface IProps {
+  cdn_encode_video_url: string | undefined
   imdb_info: IImdbResponse | undefined
-  rezka_movie: IRezkaMovieResponse | undefined
-  translation?: ITranslationResponse | undefined
-  rezka_cherio_info: IRezkaInfoByIdResponse | undefined
+  rezka_movie_href: string | undefined
 }
-export default function Movie({
-  rezka_movie,
-  imdb_info,
-  translation,
-  rezka_cherio_info,
-}: IProps) {
+export default function Movie({ cdn_encode_video_url, imdb_info, rezka_movie_href }: IProps) {
   return (
-    <MovieDetailed
-      rezka_movie={rezka_movie}
+    <MovieDetailedContainer
+      rezka_movie_href={rezka_movie_href}
       imdb_info={imdb_info}
-      translation={translation}
-      rezka_cherio_info={rezka_cherio_info}
+      cdn_encode_video_url={cdn_encode_video_url}
     />
   )
 }
@@ -42,22 +36,20 @@ export async function getStaticProps({
   revalidate: number
 }> {
   const [groupMovie] = await toQuery(() => api.groupMovieIdGet(params.id, {}))
-  const [detailedInfo] = await setTimeoutAsync(
-    async () =>
-      await toQuery(() =>
-        api.parserRezkaDetailsPost({
-          imdb_id: groupMovie?.imdb_info.id || '',
-        }),
-      ),
-    process.env.NEXT_PHASE === PHASE_PRODUCTION_BUILD ? 10 * 1000 : 0,
-  )
+  const [detailedInfo] =
+    process.env.NEXT_PHASE === PHASE_PRODUCTION_BUILD
+      ? await Promise.resolve([])
+      : await toQuery(() =>
+          api.parserRezkaDetailsPost({
+            imdb_id: groupMovie?.imdb_info.id || '',
+          }),
+        )
 
   return {
     props: {
-      rezka_movie: groupMovie?.rezka_movie,
+      rezka_movie_href: groupMovie?.rezka_movie.href,
       imdb_info: groupMovie?.imdb_info,
-      translation: groupMovie?.translation,
-      rezka_cherio_info: detailedInfo,
+      cdn_encode_video_url: detailedInfo?.cdn_encoded_video_url,
     },
     revalidate: 60 * 60 * 12, // in seconds
   }

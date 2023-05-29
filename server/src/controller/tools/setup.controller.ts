@@ -208,8 +208,8 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
                     logs.push(`parse cypress rezka by href error`, parserError);
                     return;
                 } else if (parseItem) {
-                    const uaTranslations = parseItem.translations.filter((translation) =>
-                        translation.translation.includes('Укр'),
+                    const uaTranslations = parseItem.translations.filter(
+                        (translation) => translation.translation.includes('Укр') || translation.translation.includes('Ориг'),
                     );
                     logs.push(`parse cypress success translations = `, uaTranslations.length);
                     await oneByOneAsync(
