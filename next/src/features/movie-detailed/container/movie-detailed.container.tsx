@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import 'twin.macro'
 import Link from 'next/link'
 import {
+  IGroupMovieDetailedResponse,
   IGroupMovieResponse,
   IImdbResponse,
   IResolutionItem,
@@ -10,21 +11,24 @@ import {
   ITranslationResponse,
   api,
 } from '../../../api/api.generated'
-import { Loading } from '../../loading/loading.component'
 import { useMutation } from '../../../hooks/use-mutation.hook'
-import { MovieDetailed } from '../components/movie-detailed.component'
+import {
+  IVideoUrl,
+  MovieDetailed,
+} from '../components/movie-detailed.component'
+import { useQuery } from '../../../hooks/use-query.hook'
+import { Loading } from '../../../general-ui/loading/loading.component'
+import axios from 'axios'
 
 interface IProps {
-  cdn_encode_video_url: string | undefined
   imdb_info: IImdbResponse | undefined
   rezka_movie_href: string | undefined
 }
 export const MovieDetailedContainer = ({
   imdb_info,
   rezka_movie_href,
-  cdn_encode_video_url,
 }: IProps): JSX.Element => {
-  const [encodeUrl, setEncodeUrl] = useState(cdn_encode_video_url)
+  const [encodeUrls, setEncodeUrls] = useState<IVideoUrl[]>()
   const {
     execute: parseCypressExecute,
     data: parseCypressData,
@@ -41,12 +45,6 @@ export const MovieDetailedContainer = ({
     api.parserRezkaDetailsPost({ imdb_id: imdb_info?.id || '' }),
   )
 
-  useEffect(() => {
-    if (!cdn_encode_video_url) {
-      rezkaDetailsExecute()
-    }
-  }, [cdn_encode_video_url, rezkaDetailsExecute])
-
   const handleReloadV1 = useCallback(() => {
     parseCypressExecute()
   }, [])
@@ -56,26 +54,59 @@ export const MovieDetailedContainer = ({
   }, [])
 
   useEffect(() => {
-    if (parseCypressData) {
-      const translation = parseCypressData.translations.find(f =>
-        f.translation.includes('Укр'),
-      )
-
-      if (translation) {
-        setEncodeUrl(translation.encoded_video_url)
+    axios.get('/api/get-stream/' + imdb_info?.id).then(data => {
+      const cdn_encode_video_urls: IRezkaInfoByIdResponse[] = data.data as any
+      console.log('cdn_encode_video_urls', cdn_encode_video_urls)
+      if (cdn_encode_video_urls.length) {
+        setEncodeUrls(
+          cdn_encode_video_urls.map(obj => {
+            return {
+              encode_video_url: obj.cdn_encoded_video_url,
+              label: obj.translation_name,
+            }
+          }),
+        )
       }
-    }
+    })
+  }, [])
 
-    if (rezkaDetailsExecuteData) {
-      setEncodeUrl(rezkaDetailsExecuteData.cdn_encoded_video_url)
+  useEffect(() => {
+    if (parseCypressData?.translations.length) {
+      setEncodeUrls(
+        parseCypressData.translations
+          .filter(
+            f =>
+              f.translation.toLowerCase().includes('ориг') ||
+              f.translation.toLowerCase().includes('укр'),
+          )
+          .map(obj => {
+            return {
+              encode_video_url: obj.encoded_video_url,
+              label: obj.translation,
+            }
+          }),
+      )
     }
-  }, [parseCypressData, rezkaDetailsExecuteData])
+  }, [parseCypressData])
+
+  useEffect(() => {
+    if (rezkaDetailsExecuteData?.length) {
+      setEncodeUrls(
+        rezkaDetailsExecuteData.map(obj => {
+          return {
+            encode_video_url: obj.cdn_encoded_video_url,
+            label: obj.translation_name,
+          }
+        }),
+      )
+    }
+  }, [rezkaDetailsExecuteData])
   return (
     <Loading loading={parseCypressLoading || rezkaDetailsLoading}>
       <MovieDetailed
         onReloadV1={handleReloadV1}
         onReloadV2={handleReloadV2}
-        encode_video_url={encodeUrl}
+        video_urls={encodeUrls || []}
         imdb_info={imdb_info}
       />
     </Loading>

@@ -15,9 +15,7 @@ import {
 import { ENV } from '../env'
 
 const API_SERVER_URL =
-  process.env.NODE_ENV === 'development'
-    ? ENV.LOCAL
-    : ENV.REMOTE_NGINX
+  process.env.NODE_ENV === 'development' ? ENV.LOCAL : ENV.REMOTE_NGINX
 
 // DON'T REMOVE THIS COMMENTS!!! Code between comments auto-generated
 // INSERT START
@@ -26,6 +24,17 @@ export enum ERezkaVideoType {
   cartoon = 'cartoon',
 }
 export interface IGroupMovieResponse {
+  rate: number
+  year: number
+  genre: string
+  name: string
+  imdb_id: string
+  has_ua?: boolean
+  has_en?: boolean
+  poster: string
+  video_type: ERezkaVideoType
+}
+export interface IGroupMovieDetailedResponse {
   imdb_info: IImdbResponse
   rezka_movie: IRezkaMovieResponse
   translation?: ITranslationResponse
@@ -76,17 +85,7 @@ export interface IRezkaMovieResponse {
   year: number
   href: string
   video_type: ERezkaVideoType
-  imdb?: ImdbDto
-  imdb_id?: string
   rezka_imdb_id: string
-}
-export interface ImdbDto {
-  id: string
-  en_name: string
-  poster: string
-  imdb_rating: number
-  year: number
-  json: string
 }
 export interface ITranslationResponse {
   id: string
@@ -154,11 +153,8 @@ export interface IRezkaDetailsBody {
   imdb_id: string
 }
 export interface IRezkaInfoByIdResponse {
-  en_name: string
-  year: number
-  imdb_rezka_relative_link: string
-  php_session_id: string
-  video_id: string
+  translation_id: string
+  translation_name: string
   cdn_encoded_video_url: string
 }
 export interface IPostRezkaMovieBody {
@@ -167,8 +163,6 @@ export interface IPostRezkaMovieBody {
   year: number
   href: string
   video_type: ERezkaVideoType
-  imdb?: ImdbDto
-  imdb_id?: string
   rezka_imdb_id: string
 }
 export interface IPutRezkaMovieBody {
@@ -177,8 +171,6 @@ export interface IPutRezkaMovieBody {
   year: number
   href: string
   video_type: ERezkaVideoType
-  imdb?: ImdbDto
-  imdb_id?: string
   rezka_imdb_id: string
 }
 export interface ISearchRezkaMovieResponse {
@@ -273,7 +265,7 @@ export const createApiRequest = (rs: IRequestService) => ({
     id: string,
     query: { page?: number; limit?: number } | undefined,
   ): CustomPromise<
-    CustomAxiosResponse<IGroupMovieResponse, TGroupMovieIdGetError>,
+    CustomAxiosResponse<IGroupMovieDetailedResponse, TGroupMovieIdGetError>,
     IBEError<TGroupMovieIdGetError>
   > => rs.get(formatUrl(API_SERVER_URL + `api/group-movie/${id}`, query)),
 
@@ -349,7 +341,10 @@ export const createApiRequest = (rs: IRequestService) => ({
   parserRezkaDetailsPost: (
     body: IRezkaDetailsBody,
   ): CustomPromise<
-    CustomAxiosResponse<IRezkaInfoByIdResponse, TParserRezkaDetailsPostError>,
+    CustomAxiosResponse<
+      Array<IRezkaInfoByIdResponse>,
+      TParserRezkaDetailsPostError
+    >,
     IBEError<TParserRezkaDetailsPostError>
   > => rs.post(formatUrl(API_SERVER_URL + `api/parser/rezka-details/`), body),
 

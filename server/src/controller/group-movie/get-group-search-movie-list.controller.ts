@@ -5,11 +5,18 @@ import { IQueryReturn } from '@server/utils/to-query.util';
 import { IRezkaMovieResponse } from '../rezka-movie/get-rezka-movie-list.controller';
 import { IImdbResponse } from '../imdb/get-imdb-list.controller';
 import { ITranslationResponse } from '../translation/get-translation-list.controller';
+import { ERezkaVideoType } from '@server/dto/rezka-movie.dto';
 
 export interface IGroupMovieResponse {
-    imdb_info: IImdbResponse;
-    rezka_movie: IRezkaMovieResponse;
-    translation?: ITranslationResponse;
+    rate: number;
+    year: number;
+    genre: string;
+    name: string;
+    imdb_id: string;
+    has_ua?: boolean;
+    has_en?: boolean;
+    poster: string;
+    video_type: ERezkaVideoType;
 }
 
 interface IRequest extends IExpressRequest {}
@@ -55,21 +62,26 @@ export const groupSearchMoviesAsync = async (): Promise<IQueryReturn<IGroupMovie
             if (!imdb) {
                 return undefined;
             }
-            const translationRelation = allRelations?.find((tr) => tr.rezka_movie_id === movie.id);
+            const relations = allRelations?.filter((tr) => tr.rezka_movie_id === movie.id);
 
-            const data = {
-                rezka_movie: movie,
-                imdb_info: {
-                    ...imdb,
-                    jsonObj: JSON.parse(imdb.json),
-                },
-                translation: allTranslation?.find((translation) => translation.id === translationRelation?.translation_id),
+            const translations = allTranslation?.filter((translation) =>
+                relations?.some((s) => s.translation_id === translation.id),
+            );
+            const imdbJson = JSON.parse(imdb.json);
+            return {
+                genre: imdbJson.Genre,
+                imdb_id: imdb.id,
+                rate: +imdb.imdb_rating,
+                name: movie.en_name,
+                year: +imdb.year,
+                has_en: translations?.some((t) => t.label.toLowerCase().includes('ориг')),
+                has_ua: translations?.some((t) => t.label.toLowerCase().includes('укр')),
+                poster: imdb.poster,
+                video_type: movie.video_type,
             };
-            delete (data.imdb_info as any).json;
-            return data;
         })
-        .filter((m) => m?.imdb_info && m.translation)
-        .sort((a, b) => (Number(b?.imdb_info.imdb_rating) || 0) - (Number(a?.imdb_info.imdb_rating) || 0));
+        .filter((m) => m?.imdb_id && (m.has_ua || m?.has_en))
+        .sort((a, b) => (Number(b?.rate) || 0) - (Number(a?.rate) || 0));
     console.log('result', data?.length);
     return [data as IGroupMovieResponse[]];
 };

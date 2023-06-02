@@ -3,8 +3,12 @@ export async function oneByOneAsync<T>(items: T[], fn: (item: T) => Promise<void
         return () => {
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
-                    fn(item).then(resolve).catch(reject);
-                }, settings?.timeout );
+                    try {
+                        fn(item).then(resolve).catch(reject);
+                    } catch (ex) {
+                        reject(ex);
+                    }
+                }, settings?.timeout);
             });
         };
     });

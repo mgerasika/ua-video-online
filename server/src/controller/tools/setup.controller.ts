@@ -66,42 +66,6 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
 
     const [dbMovies = []] = await dbService.rezkaMovie.getRezkaMoviesAllAsync({});
 
-    if (props.searchImdb) {
-        const [imdbInfoItems = []] = await dbService.imdb.getImdbAllAsync();
-
-        await oneByOneAsync(dbMovies, async (movieItem) => {
-            const imdbInfo = imdbInfoItems.find(
-                (imdbItem) => imdbItem.en_name === movieItem.en_name || imdbItem.id === movieItem.rezka_imdb_id,
-            );
-            if (imdbInfo) {
-                return;
-            }
-            const [newImdbInfo, newImdbInfoError] = await dbService.imdb.searchImdbMovieInfoAsync(
-                movieItem.en_name,
-                movieItem.year + '',
-                movieItem.rezka_imdb_id,
-            );
-            if (newImdbInfoError) {
-                return logs.push(`imdb info not found ${movieItem.en_name} error=${newImdbInfoError}`);
-            }
-
-            if (newImdbInfo) {
-                const [, postImdbError] = await postImdbAsync({
-                    en_name: newImdbInfo.Title,
-                    imdb_rating: +newImdbInfo.imdbRating,
-                    json: JSON.stringify(newImdbInfo),
-                    poster: newImdbInfo.Poster,
-                    year: +newImdbInfo.Year,
-                    id: newImdbInfo.imdbID,
-                });
-                if (postImdbError) {
-                    return logs.push(`imdb post error ${movieItem.en_name} imdbId = ${newImdbInfo.imdbID}`);
-                }
-                logs.push(`imdb post success ${movieItem.en_name} imdbId = ${newImdbInfo.imdbID}`);
-            }
-        });
-    }
-
     if (props.updateRezkaCartoon) {
         const [parseItems = [], parserError] = await dbService.parser.parseRezkaAllPagesAsync({
             type: ERezkaVideoType.cartoon,
@@ -159,14 +123,14 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
 
     if (props.updateRezkaImdbId) {
         const items = dbMovies.filter((f) => !f.rezka_imdb_id);
-        logs.push('download imdb ids  for ' + items.length);
+        logs.push('download imdb ids for ' + items.length);
         await oneByOneAsync(
             items.sort((a, b) => b.year - a.year),
             async (dbMovie) => {
                 logs.push('parse dbMovie.href', dbMovie.href);
                 const [parseItem, parserError] = await dbService.parser.getCypressImdbAsync(dbMovie.href);
                 if (parserError) {
-                    logs.push(`parse cypress rezka by href error`, parserError);
+                    logs.push(`parse cypress rezka by href error`);
                     await dbService.rezkaMovie.putRezkaMovieAsync(dbMovie.id, {
                         rezka_imdb_id: CONST.EMPTY_IMDB_ID,
                     });
@@ -185,30 +149,95 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
         );
     }
 
+    if (props.searchImdb) {
+        const [imdbInfoItems = []] = await dbService.imdb.getImdbAllAsync();
+        const filtered = dbMovies
+            .filter((movie) => movie.rezka_imdb_id && !movie.rezka_imdb_id.includes(CONST.EMPTY_IMDB_ID))
+            .filter((movieItem) => {
+                const imdbInfo = imdbInfoItems.find(
+                    (imdbItem) => imdbItem.en_name === movieItem.en_name || imdbItem.id === movieItem.rezka_imdb_id,
+                );
+                if (imdbInfo) {
+                    return false;
+                }
+                return true;
+            });
+        logs.push('searchImdb without imdbs - ', filtered.length);
+        await oneByOneAsync(filtered, async (movieItem) => {
+            const [newImdbInfo, newImdbInfoError] = await dbService.imdb.searchImdbMovieInfoAsync(
+                movieItem.en_name,
+                movieItem.year + '',
+                movieItem.rezka_imdb_id,
+            );
+            if (newImdbInfoError) {
+                return logs.push(`imdb info not found ${movieItem.en_name} error=${newImdbInfoError}`);
+            }
+
+            if (newImdbInfo) {
+                const [, postImdbError] = await postImdbAsync({
+                    en_name: newImdbInfo.Title,
+                    imdb_rating: +newImdbInfo.imdbRating,
+                    json: JSON.stringify(newImdbInfo),
+                    poster: newImdbInfo.Poster,
+                    year: +newImdbInfo.Year,
+                    id: newImdbInfo.imdbID,
+                });
+                if (postImdbError) {
+                    return logs.push(`imdb post error ${movieItem.en_name} imdbId = ${newImdbInfo.imdbID}`);
+                }
+                logs.push(`imdb post success ${movieItem.en_name} imdbId = ${newImdbInfo.imdbID}`);
+            }
+        });
+    }
+
     if (props.updateRezkaTranslations) {
         const [dbMovies = []] = await dbService.rezkaMovie.getRezkaMoviesAllAsync({});
-        logs.push('download streams for ' + dbMovies.length);
+
+        const [allDbTranslations] = await dbService.rezkaMovieTranslation.getRezkaMovieTranslationAllAsync({});
+
+        const filtered = dbMovies
+            .filter((dbMovie) => dbMovie.rezka_imdb_id)
+            .filter((dbMovie) => !allDbTranslations?.some((tr) => tr.rezka_movie_id === dbMovie.id));
+        logs.push('download streams for ' + filtered.length);
         // imdb id
         await oneByOneAsync(
-            dbMovies.filter((f) => f.rezka_imdb_id).sort((a, b) => b.year - a.year),
+            shuffleArray(filtered),
             async (dbMovie) => {
                 logs.push('imdbId', dbMovie.rezka_imdb_id);
-                const [allDbTranslations] = await dbService.rezkaMovieTranslation.getRezkaMovieTranslationAllAsync({
-                    rezka_movie_id: dbMovie.id,
-                });
-                if (allDbTranslations?.length) {
-                    logs.push('Skip, found translation');
-                    return;
-                }
+
                 const [parseItem, parserError] = await dbService.parser.getCypressRezkaStreamsAsync(dbMovie.href);
                 if (parserError) {
-                    logs.push(`parse cypress rezka by href error`, parserError);
+                    logs.push(`parse cypress rezka stream error`);
+                    //add empty translation relation
+                    const [, postRelationError] = await dbService.rezkaMovieTranslation.postRezkaMovieTranslationAsync({
+                        rezka_movie_id: dbMovie.id,
+                        translation_id: '',
+                    });
+
+                    if (postRelationError) {
+                        logs.push('post empty relation error', postRelationError);
+                    } else {
+                        logs.push('post empty relation success');
+                    }
                     return;
                 } else if (parseItem) {
                     const uaTranslations = parseItem.translations.filter(
                         (translation) => translation.translation.includes('Укр') || translation.translation.includes('Ориг'),
                     );
                     logs.push(`parse cypress success translations = `, uaTranslations.length);
+                    if (uaTranslations.length === 0) {
+                        //add empty translation relation
+                        const [, postRelationError] = await dbService.rezkaMovieTranslation.postRezkaMovieTranslationAsync({
+                            rezka_movie_id: dbMovie.id,
+                            translation_id: '',
+                        });
+
+                        if (postRelationError) {
+                            logs.push('post empty relation error', postRelationError);
+                        } else {
+                            logs.push('post empty relation success');
+                        }
+                    }
                     await oneByOneAsync(
                         uaTranslations,
                         async (translation) => {
@@ -217,7 +246,7 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
                             );
                             logs.push('dbTranslation', dbTranslation);
 
-                            let newTranslation: ITranslationDto | undefined = dbTranslation;
+                            let currentTranslation: ITranslationDto | undefined = dbTranslation;
                             if (dbTranslationError) {
                                 logs.push('dbTranslationError ' + translation.data_translator_id, dbTranslationError);
                                 const [postTranslation, postTranslationError] =
@@ -232,16 +261,17 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
                                     logs.push('post translation error', postTranslationError);
                                 } else if (postTranslation) {
                                     logs.push('post translation success');
-                                    newTranslation = postTranslation;
+                                    currentTranslation = postTranslation;
                                 }
                             }
 
-                            if (newTranslation) {
+                            // add relation
+                            if (currentTranslation) {
                                 //TODO find relation if need
                                 const [, postRelationError] =
                                     await dbService.rezkaMovieTranslation.postRezkaMovieTranslationAsync({
                                         rezka_movie_id: dbMovie.id,
-                                        translation_id: newTranslation?.id || '',
+                                        translation_id: currentTranslation?.id || '',
                                     });
 
                                 if (postRelationError) {
@@ -263,3 +293,13 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
 
     return [logs.get(), undefined];
 };
+
+function shuffleArray<T>(array: T[]): T[] {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+    return array;
+}

@@ -6,11 +6,13 @@ interface IProps {
   title: string
   name: string
   selected: boolean
+  className?: string
 }
 export const SelectedButton = ({
   name,
   title,
   onChange,
+  className,
   selected,
 }: IProps): JSX.Element => {
   const handleOnChange = useCallback(() => {
@@ -18,9 +20,10 @@ export const SelectedButton = ({
   }, [name, selected, onChange])
   return (
     <button
+      className={className}
       type="button"
       onClick={handleOnChange}
-      tw="text-white [border-radius: 6px] px-2 py-0 m-1  bg-gray-700"
+      tw="text-white [border-radius: 6px] px-2 py-0   bg-gray-700 lowercase"
       css={styles.root(selected)}
     >
       {title}

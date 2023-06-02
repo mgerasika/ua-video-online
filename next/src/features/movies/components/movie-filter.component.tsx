@@ -2,42 +2,90 @@ import { useCallback } from 'react'
 import { SelectedButton } from '../../../general-ui/selected-button/selected-button.component'
 import { IMovieFilter } from '../../../interfaces/movie-filter.interface'
 import 'twin.macro'
+import { ERezkaVideoType } from '../../../api/api.generated'
+import { SelectButtonList } from '../../../general-ui/select-button-list/select-button-list.component'
+import { ALL_LANG } from '../containers/movies.container'
 
 interface IProps {
-  genres: string[]
+  allGenres: string[]
+  allYears: string[]
   filter: IMovieFilter
   onFilterChange: (filter: IMovieFilter) => void
 }
-export const MovieFilter = ({ genres, filter, onFilterChange }: IProps) => {
+export const MovieFilter = ({
+  allGenres,
+  filter,
+  allYears,
+  onFilterChange,
+}: IProps) => {
   const handleGenreChange = useCallback(
-    (name: string, selected: boolean) => {
-      if (selected) {
-        onFilterChange({ ...filter, genres: [...filter.genres, name] })
-      } else {
-        onFilterChange({
-          ...filter,
-          genres: [...filter.genres.filter(f => f !== name)],
-        })
-      }
+    (newValues: string[]) => {
+      onFilterChange({
+        ...filter,
+        genres: newValues,
+      })
+    },
+    [filter, onFilterChange],
+  )
+
+  const handleVideoTypeChange = useCallback(
+    (newValues: string[]) => {
+      onFilterChange({
+        ...filter,
+        video_types: newValues as unknown as ERezkaVideoType[],
+      })
+    },
+    [filter, onFilterChange],
+  )
+
+  const handleYearsChange = useCallback(
+    (newValues: string[]) => {
+      onFilterChange({
+        ...filter,
+        years: newValues,
+      })
+    },
+    [filter, onFilterChange],
+  )
+
+  const handleLanguageChange = useCallback(
+    (newValues: string[]) => {
+      onFilterChange({
+        ...filter,
+        languages: newValues,
+      })
     },
     [filter, onFilterChange],
   )
   return (
     <div tw="text-white">
-      <div tw="float-left">
-        {genres.map(genre => {
-          return (
-            <SelectedButton
-              key={genre}
-              name={genre}
-              title={genre}
-              onChange={handleGenreChange}
-              selected={filter.genres.includes(genre)}
-            />
-          )
-        })}
-      </div>
-      <div tw="clear-both mb-4"></div>
+      <SelectButtonList
+        showAll={false}
+        allItems={allYears}
+        onChange={handleYearsChange}
+        value={filter.years}
+      />
+
+      <SelectButtonList
+        showAll={false}
+        allItems={Object.values(ERezkaVideoType)}
+        onChange={handleVideoTypeChange}
+        value={filter.video_types}
+      />
+
+      <SelectButtonList
+        showAll={false}
+        allItems={ALL_LANG}
+        onChange={handleLanguageChange}
+        value={filter.languages}
+      />
+
+      <SelectButtonList
+        tw="mb-4"
+        allItems={allGenres}
+        onChange={handleGenreChange}
+        value={filter.genres}
+      />
     </div>
   )
 }

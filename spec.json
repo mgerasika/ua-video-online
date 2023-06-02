@@ -71,7 +71,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IGroupMovieResponse"
+                  "$ref": "#/components/schemas/IGroupMovieDetailedResponse"
                 }
               }
             }
@@ -489,7 +489,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IRezkaInfoByIdResponse"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IRezkaInfoByIdResponse"
+                  }
                 }
               }
             }
@@ -1031,6 +1034,54 @@
       "IGroupMovieResponse": {
         "type": "object",
         "required": [
+          "rate",
+          "year",
+          "genre",
+          "name",
+          "imdb_id",
+          "poster",
+          "video_type"
+        ],
+        "properties": {
+          "rate": {
+            "type": "integer"
+          },
+          "year": {
+            "type": "integer"
+          },
+          "genre": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "imdb_id": {
+            "type": "string"
+          },
+          "has_ua": {
+            "type": "boolean"
+          },
+          "has_en": {
+            "type": "boolean"
+          },
+          "poster": {
+            "type": "string"
+          },
+          "video_type": {
+            "type": "ERezkaVideoType"
+          }
+        }
+      },
+      "ERezkaVideoType": {
+        "type": "string",
+        "enum": [
+          "film",
+          "cartoon"
+        ]
+      },
+      "IGroupMovieDetailedResponse": {
+        "type": "object",
+        "required": [
           "imdb_info",
           "rezka_movie"
         ],
@@ -1229,51 +1280,7 @@
           "video_type": {
             "type": "ERezkaVideoType"
           },
-          "imdb": {
-            "type": "ImdbDto"
-          },
-          "imdb_id": {
-            "type": "string"
-          },
           "rezka_imdb_id": {
-            "type": "string"
-          }
-        }
-      },
-      "ERezkaVideoType": {
-        "type": "string",
-        "enum": [
-          "film",
-          "cartoon"
-        ]
-      },
-      "ImdbDto": {
-        "type": "object",
-        "required": [
-          "id",
-          "en_name",
-          "poster",
-          "imdb_rating",
-          "year",
-          "json"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "en_name": {
-            "type": "string"
-          },
-          "poster": {
-            "type": "string"
-          },
-          "imdb_rating": {
-            "type": "integer"
-          },
-          "year": {
-            "type": "integer"
-          },
-          "json": {
             "type": "string"
           }
         }
@@ -1529,27 +1536,15 @@
       "IRezkaInfoByIdResponse": {
         "type": "object",
         "required": [
-          "en_name",
-          "year",
-          "imdb_rezka_relative_link",
-          "php_session_id",
-          "video_id",
+          "translation_id",
+          "translation_name",
           "cdn_encoded_video_url"
         ],
         "properties": {
-          "en_name": {
+          "translation_id": {
             "type": "string"
           },
-          "year": {
-            "type": "integer"
-          },
-          "imdb_rezka_relative_link": {
-            "type": "string"
-          },
-          "php_session_id": {
-            "type": "string"
-          },
-          "video_id": {
+          "translation_name": {
             "type": "string"
           },
           "cdn_encoded_video_url": {
@@ -1583,12 +1578,6 @@
           "video_type": {
             "type": "ERezkaVideoType"
           },
-          "imdb": {
-            "type": "ImdbDto"
-          },
-          "imdb_id": {
-            "type": "string"
-          },
           "rezka_imdb_id": {
             "type": "string"
           }
@@ -1619,12 +1608,6 @@
           },
           "video_type": {
             "type": "ERezkaVideoType"
-          },
-          "imdb": {
-            "type": "ImdbDto"
-          },
-          "imdb_id": {
-            "type": "string"
           },
           "rezka_imdb_id": {
             "type": "string"

@@ -4,15 +4,13 @@ import { API_URL } from '@server/constants/api-url.constant';
 import { IQueryReturn, toQuery } from '@server/utils/to-query.util';
 import { REZKA_HEADERS } from './rezka-all.controller';
 import { dbService } from '../db.service';
+import { oneByOneAsync } from '@server/utils/one-by-one-async.util';
 
 const cheerio = require('cheerio');
 
 export interface IRezkaInfoByIdResponse {
-    en_name: string;
-    year: number;
-    imdb_rezka_relative_link: string;
-    php_session_id: string;
-    video_id: string;
+    translation_id: string;
+    translation_name: string;
     cdn_encoded_video_url: string;
 }
 
@@ -23,7 +21,7 @@ interface IRequest extends IExpressRequest {
     body: IRezkaDetailsBody;
 }
 
-interface IResponse extends IExpressResponse<IRezkaInfoByIdResponse, void> {}
+interface IResponse extends IExpressResponse<IRezkaInfoByIdResponse[], void> {}
 
 app.post(API_URL.api.parser.rezkaDetails.toString(), async (req: IRequest, res: IResponse) => {
     const [data, error] = await parseRezkaDetailsAsync(req.body.imdb_id);
@@ -33,7 +31,7 @@ app.post(API_URL.api.parser.rezkaDetails.toString(), async (req: IRequest, res: 
     return res.send(data);
 });
 
-export const parseRezkaDetailsAsync = async (imdb_id: string): Promise<IQueryReturn<IRezkaInfoByIdResponse>> => {
+export const parseRezkaDetailsAsync = async (imdb_id: string): Promise<IQueryReturn<IRezkaInfoByIdResponse[]>> => {
     const [dbMovie, dbMovieError] = await dbService.rezkaMovie.getRezkaMoviesAllAsync({ imdb_id });
     if (dbMovieError) {
         return [undefined, 'dbError ' + dbMovieError];
@@ -72,37 +70,37 @@ export const parseRezkaDetailsAsync = async (imdb_id: string): Promise<IQueryRet
 
     console.log('href', href);
 
-    // TODO refactor -return array
-    const [cdnResponse, cdnError] = await toQuery(
-        async () =>
-            await axios({
-                method: 'post',
-                url: `https://rezka.ag/ajax/get_cdn_series/?t=${new Date().getTime()}`,
-                headers: {
-                    ...REZKA_HEADERS.headers,
-                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                    Cookie: `SL_G_WPT_TO=en; SL_GWPT_Show_Hide_tmp=1; SL_wptGlobTipTmp=1; PHPSESSID=${phpSessionId}; dle_user_taken=1; dle_user_token=30f358e2681322bd118c71ab06481604; _ym_uid=1684426440709605085; _ym_d=1684426440; _ym_isad=1; _ym_hostIndex=0-3%2C1-0; _ym_visorc=b`,
-                    Origin: 'https://rezka.ag',
-                    Referrer: 'https://rezka.ag/series/documentary/57418-makgregor-navsegda-2023.html',
-                },
-                data: `id=${videoId}&translator_id=${dbTranslations[0].id}&is_camrip=${dbTranslations[0].data_camrip}&is_ads=${dbTranslations[0].data_ads}&is_director=${dbTranslations[0].data_director}&favs=7e980c10-dae0-4b55-a45a-2315678e8e7e&action=get_movie`,
-            }),
-    );
-    if (cdnError) {
-        return [undefined, 'cdn error ' + cdnError];
-    }
-    if (!cdnResponse?.data.success) {
-        return [undefined, 'cdn custom error session_id=' + phpSessionId + ' error =' + cdnResponse?.data?.message];
-    }
-    console.log('get_cdn_series', cdnResponse?.data);
-    return [
-        {
-            en_name: $('.b-post__origtitle').text().trim(),
-            year: +year,
-            imdb_rezka_relative_link: relativeUrl,
-            php_session_id: phpSessionId,
-            video_id: videoId || '',
+    const res: IRezkaInfoByIdResponse[] = [];
+    await oneByOneAsync(dbTranslations, async (activeTranslation): Promise<void> => {
+        const [cdnResponse, cdnError] = await toQuery(
+            async () =>
+                await axios({
+                    method: 'post',
+                    url: `https://rezka.ag/ajax/get_cdn_series/?t=${new Date().getTime()}`,
+                    headers: {
+                        ...REZKA_HEADERS.headers,
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        Cookie: `SL_G_WPT_TO=en; SL_GWPT_Show_Hide_tmp=1; SL_wptGlobTipTmp=1; PHPSESSID=${phpSessionId}; dle_user_taken=1; dle_user_token=30f358e2681322bd118c71ab06481604; _ym_uid=1684426440709605085; _ym_d=1684426440; _ym_isad=1; _ym_hostIndex=0-3%2C1-0; _ym_visorc=b`,
+                        Origin: 'https://rezka.ag',
+                        Referrer: 'https://rezka.ag/series/documentary/57418-makgregor-navsegda-2023.html',
+                    },
+                    data: `id=${videoId}&translator_id=${activeTranslation.id}&is_camrip=${activeTranslation.data_camrip}&is_ads=${activeTranslation.data_ads}&is_director=${activeTranslation.data_director}&favs=7e980c10-dae0-4b55-a45a-2315678e8e7e&action=get_movie`,
+                }),
+        );
+        if (cdnError) {
+            throw 'get cdn error ' + cdnError;
+        }
+        if (!cdnResponse?.data.success) {
+            throw 'cdn custom error session_id=' + phpSessionId + ' error =' + cdnResponse?.data?.message;
+        }
+        console.log('get_cdn_series', cdnResponse?.data);
+        res.push({
+            translation_id: activeTranslation.id,
+            translation_name: activeTranslation.label,
             cdn_encoded_video_url: cdnResponse?.data.url,
-        },
-    ];
+        });
+    });
+    // TODO refactor -return array
+
+    return [res];
 };

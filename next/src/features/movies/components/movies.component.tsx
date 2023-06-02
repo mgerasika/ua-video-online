@@ -8,14 +8,22 @@ import 'twin.macro'
 import { useIsMounted } from '../../../use-is-mounted.hook'
 import { MovieFilter } from './movie-filter.component'
 import { IMovieFilter } from '../../../interfaces/movie-filter.interface'
+import { Layout } from '../../../general-ui/layout/layout.component'
 
 interface IProps {
-  genres: string[]
+  allYears: string[]
+  allGenres: string[]
   filter: IMovieFilter
   onFilterChange: (filter: IMovieFilter) => void
   movies: IGroupMovieResponse[] | undefined
 }
-export const MoviesComponent = ({ movies, genres, filter, onFilterChange }: IProps): JSX.Element => {
+export const MoviesComponent = ({
+  movies,
+  allGenres,
+  allYears,
+  filter,
+  onFilterChange,
+}: IProps): JSX.Element => {
   useEffect(() => {
     let interval = 0
     const handleScroll = () => {
@@ -43,21 +51,18 @@ export const MoviesComponent = ({ movies, genres, filter, onFilterChange }: IPro
   }, [400])
 
   return (
-    <div tw="mx-auto container">
-      <h2 tw="text-white text-[30px] text-center  py-4">HD Online (UA)</h2>
-
-      <MovieFilter genres={genres} filter={filter} onFilterChange={onFilterChange} />
-      <div tw="grid 2xl:grid-cols-5 md:grid-cols-2 lg:grid-cols-3 grid-cols-1  gap-x-6 gap-y-6  justify-items-center">
+    <Layout>
+      <MovieFilter
+        allGenres={allGenres}
+        allYears={allYears}
+        filter={filter}
+        onFilterChange={onFilterChange}
+      />
+      <div tw="grid 2xl:grid-cols-5 md:grid-cols-2 lg:grid-cols-3 grid-cols-1  gap-x-6 gap-y-12  justify-items-center">
         {movies?.map(movie => {
-          return (
-            <MovieCard
-              key={movie.imdb_info.en_name}
-              movie={movie}
-              hasStream={true}
-            />
-          )
+          return <MovieCard key={movie.imdb_id} movie={movie} />
         })}
       </div>
-    </div>
+    </Layout>
   )
 }

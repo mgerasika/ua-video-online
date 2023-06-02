@@ -14,13 +14,18 @@ import { MoviesContainer } from '../features/movies/containers/movies.container'
 
 interface IProps {
   allMovies: IGroupMovieResponse[]
-  genres: string[]
+  allGenres: string[]
+  allYears: string[]
 }
 
-const App = ({ allMovies, genres }: IProps) => {
+const App = ({ allMovies, allGenres, allYears }: IProps) => {
   return (
     <div>
-      <MoviesContainer allMovies={allMovies} genres={genres} />
+      <MoviesContainer
+        allMovies={allMovies}
+        allGenres={allGenres}
+        allYears={allYears}
+      />
     </div>
   )
 }
@@ -29,11 +34,11 @@ export async function getStaticProps(): Promise<{
   props: Omit<IProps, 'page'>
 }> {
   const movies = await api.groupMovieGet()
-  const imdbInfos = movies.data.map(movie => movie.imdb_info)
+  const genres = movies.data.map(movie => movie.genre)
+  const currentYear = new Date().getFullYear()
   return {
     props: {
-      genres: imdbInfos
-        .map(imdb => imdb.jsonObj.Genre)
+      allGenres: genres
         .join(',')
         .split(',')
         .map(f => f.trim())
@@ -43,6 +48,12 @@ export async function getStaticProps(): Promise<{
           }
           return acc
         }, []),
+      allYears: [
+        '1900-1999',
+        `2000-${currentYear - 2}`,
+        (currentYear - 1).toString(),
+        currentYear.toString(),
+      ],
       allMovies: movies.data || [],
     },
   }

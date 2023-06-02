@@ -29,7 +29,7 @@ export const getTranslationAllAsync = async (query: IRequest['query']): Promise<
             const { rows } = await client.query(`select distinct on(translation.id) translation.* FROM rezka_movie
 	left join rezka_movie_translation on rezka_movie.id = rezka_movie_translation.rezka_movie_id
 	left join translation on rezka_movie_translation.translation_id = translation.id
-	where rezka_movie.rezka_imdb_id = '${query.imdb_id}' and translation.id is not null`);
+	where rezka_movie.rezka_imdb_id = '${query.imdb_id}' and translation.id != ''`);
             return rows;
         });
     }

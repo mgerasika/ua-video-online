@@ -1,9 +1,16 @@
 import { IExpressRequest, IExpressResponse, app } from '@server/express-app';
 import { API_URL } from '@server/constants/api-url.constant';
-import { IGroupMovieResponse } from './get-group-search-movie-list.controller';
 import { IQueryReturn } from '@server/utils/to-query.util';
 import { dbService } from '../db.service';
 import { IImdbResponse } from '../imdb/get-imdb-list.controller';
+import { IRezkaMovieResponse } from '../rezka-movie/get-rezka-movie-list.controller';
+import { ITranslationResponse } from '../translation/get-translation-list.controller';
+
+export interface IGroupMovieDetailedResponse {
+    imdb_info: IImdbResponse;
+    rezka_movie: IRezkaMovieResponse;
+    translation?: ITranslationResponse;
+}
 
 interface IRequest extends IExpressRequest {
     params: {
@@ -15,7 +22,7 @@ interface IRequest extends IExpressRequest {
     };
 }
 
-interface IResponse extends IExpressResponse<IGroupMovieResponse, void> {}
+interface IResponse extends IExpressResponse<IGroupMovieDetailedResponse, void> {}
 
 app.get(API_URL.api.groupMovie.id().toString(), async (req: IRequest, res: IResponse) => {
     const [data, error] = await groupSearchMovieByIdAsync(req.params.id);
@@ -25,7 +32,7 @@ app.get(API_URL.api.groupMovie.id().toString(), async (req: IRequest, res: IResp
     return res.send(data);
 });
 
-export const groupSearchMovieByIdAsync = async (imdb_id: string): Promise<IQueryReturn<IGroupMovieResponse>> => {
+export const groupSearchMovieByIdAsync = async (imdb_id: string): Promise<IQueryReturn<IGroupMovieDetailedResponse>> => {
     const [movies, error] = await dbService.rezkaMovie.getRezkaMoviesAllAsync({ imdb_id: imdb_id });
     if (error) {
         return [, error];
@@ -48,7 +55,7 @@ export const groupSearchMovieByIdAsync = async (imdb_id: string): Promise<IQuery
         }
 
         const translationRelation = allRelations?.find((tr) => tr.rezka_movie_id === movies[0].id);
-        const data: IGroupMovieResponse = {
+        const data: IGroupMovieDetailedResponse = {
             rezka_movie: movies[0],
             imdb_info: {
                 ...imdb,
