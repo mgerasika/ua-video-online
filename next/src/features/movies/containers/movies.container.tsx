@@ -23,11 +23,11 @@ export const MoviesContainer = ({
   allGenres,
   allYears,
 }: IProps): JSX.Element => {
-  const [filter, setFilter] = useLocalStorageState<IMovieFilter>('filter', {
-    genres: allGenres,
-    years: allYears,
-    video_types: Object.values(ERezkaVideoType),
-    languages: ALL_LANG,
+  const [filter, setFilter] = useLocalStorageState<IMovieFilter>('filter-v2', {
+    genres: [],
+    years: [],
+    video_types: [],
+    languages: [],
   })
 
   const [page, setPage] = useState(0)
@@ -37,15 +37,11 @@ export const MoviesContainer = ({
 
     if (filter?.video_types.length) {
       res = res.filter(movie => filter.video_types.includes(movie.video_type))
-    } else {
-      res = []
     }
     if (filter?.genres.length) {
       res = res.filter(movie =>
         filter.genres.some(filterGenre => movie.genre.includes(filterGenre)),
       )
-    } else {
-      res = []
     }
 
     if (filter?.languages.length) {
@@ -57,8 +53,6 @@ export const MoviesContainer = ({
           return true
         }
       })
-    } else {
-      res = []
     }
 
     if (filter?.years.length) {
@@ -75,8 +69,6 @@ export const MoviesContainer = ({
             +movie.year >= yearPair.from && +movie.year <= yearPair.to,
         )
       })
-    } else {
-      res = []
     }
     console.log('onFilterChange', filter)
     console.log('movies', res)
@@ -88,6 +80,10 @@ export const MoviesContainer = ({
       0,
       Math.min(filteredMovies.length, PAGE_SIZE * (page + 1)),
     )
+  }, [page, filteredMovies])
+
+  const hasNext = useMemo(() => {
+    return PAGE_SIZE * (page + 1) < filteredMovies.length
   }, [page, filteredMovies])
 
   const handleScrollEnd = useCallback(() => {
@@ -123,7 +119,7 @@ export const MoviesContainer = ({
         }}
       />
       <div tw="p-6 text-center text-2xl">
-        {filteredMovies.length === PAGE_SIZE ? (
+        {hasNext ? (
           <div onClick={handleScrollEnd} tw="text-white ">
             Next
           </div>

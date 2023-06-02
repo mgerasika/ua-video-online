@@ -82,6 +82,7 @@ export const MovieFilter = ({
 
       <SelectButtonList
         tw="mb-4"
+        showAll={false}
         allItems={allGenres}
         onChange={handleGenreChange}
         value={filter.genres}
