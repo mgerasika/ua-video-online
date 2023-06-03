@@ -60,7 +60,6 @@ export const parseRezkaDetailsAsync = async (imdb_id: string): Promise<IQueryRet
     year = year.substr(year.length - 4);
 
     const videoId = href.split('/').pop()?.split('-').shift();
-    const relativeUrl = $('.b-post__info_rates').find('a').attr('href').trim();
     const cookies =
         (response?.headers['set-cookie'] || '')
             .toString()

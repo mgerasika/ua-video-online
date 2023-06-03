@@ -13,6 +13,14 @@ app.use(bodyParser.json());
 // );
 app.use(cors());
 
+app.use((err: any, req: any, res: any, next: any) => {
+    if (res.headersSent) {
+        return next(err);
+    }
+    res.status(500);
+    res.render('error', { error: err });
+});
+
 const morgan = require('morgan');
 morgan.token('body', (req: any, res: any) => {
     return JSON.stringify(req.body);
