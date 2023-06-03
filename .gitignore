@@ -8,6 +8,8 @@
 /.pnp
 **/.next/**
 .pnp.js
+**/dist/**
+**/build/**
 
 # testing
 /coverage
