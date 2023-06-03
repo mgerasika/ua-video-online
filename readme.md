@@ -6,7 +6,7 @@ Website scrapper that allow watch videos from [rezka](https://rezka.ag/) web sit
 ## Backend
 
 - [expressjs](https://expressjs.com/) - nodejs be framework
-- [cypress] (https://docs.cypress.io/guides/overview/why-cypress) - tool for e2e, used for scrapping web pages and populate DB
+- [cypress](https://docs.cypress.io/guides/overview/why-cypress) - tool for e2e, used for scrapping web pages and populate DB
 - [cheerio](https://cheerio.js.org/) - parsing html without running browser
 - [postgresql](https://www.postgresql.org/) - database
 - [typeorm](https://typeorm.io/) - orm for database
@@ -23,5 +23,8 @@ Website scrapper that allow watch videos from [rezka](https://rezka.ag/) web sit
 
 [customer web site](https://ua-video-online.web.app/)
 
-![image](https://github.com/mgerasika/ua-video-torrent/assets/10614750/f238189c-9a21-4861-8305-d1a344f64ff8)
+![image](https://github.com/mgerasika/ua-video-online/assets/10614750/1ebb5e0c-8478-4085-bc2e-49d9e1d1fe43)
+![image](https://github.com/mgerasika/ua-video-online/assets/10614750/e35f9e39-69a6-4a6f-be34-22067a24e9e3)
+
+
 
