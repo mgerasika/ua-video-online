@@ -1,6 +1,7 @@
 # Short info
 
-Website scrapper that allow watch videos from [rezka](https://rezka.ag/) web site. Scrapped only videos with ukrainian and original translations. Just for home usage - not commercial. All streams periodically stored in own db.
+Website scrapper that allow watch videos from [rezka](https://rezka.ag/) web site. Scrapped only videos with ukrainian and original translations. Just for home usage - not commercial. All streams periodically stored in own db. Also all movies have relation to imdb website.
+
 # Stack
 
 ## Backend
@@ -12,12 +13,12 @@ Website scrapper that allow watch videos from [rezka](https://rezka.ag/) web sit
 - [typeorm](https://typeorm.io/) - orm for database
 - [firebase](https://firebase.google.com/docs/functions) - host fe/be side in google firebase hosting/functions
 - [swagger code generation](https://github.com/mgerasika/typescript-to-swagger) - automatically build swagger.spec from express code + automatically generate client proxy code.
+- [omdbapi](http://www.omdbapi.com/) - service for getting information about movie by id (limited account)
 
 ## Frontend
 
 - [nextjs](https://nextjs.org/) - customer web site (SEO)
 - [twin.macro](https://github.com/ben-rogerson/twin.macro) - css
-
 
 # Links
 
@@ -25,6 +26,3 @@ Website scrapper that allow watch videos from [rezka](https://rezka.ag/) web sit
 
 ![image](https://github.com/mgerasika/ua-video-online/assets/10614750/1ebb5e0c-8478-4085-bc2e-49d9e1d1fe43)
 ![image](https://github.com/mgerasika/ua-video-online/assets/10614750/e35f9e39-69a6-4a6f-be34-22067a24e9e3)
-
-
-
