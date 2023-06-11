@@ -49,7 +49,8 @@ export async function getStaticProps(): Promise<{
           return acc
         }, []),
       allYears: [
-        '1900-1999',
+        '1900-1979',
+        '1980-1999',
         `2000-${currentYear - 2}`,
         (currentYear - 1).toString(),
         currentYear.toString(),

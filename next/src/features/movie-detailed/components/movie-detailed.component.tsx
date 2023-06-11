@@ -62,13 +62,23 @@ export const MovieDetailed = ({
     return ''
   }, [resolutionItems])
 
+  const renderTitle = () => {
+    return (
+      <>
+        <div tw="text-white w-full [font-size:26px] font-light ">
+          {imdb_info?.en_name} / {imdb_info?.ua_name} ({imdb_info?.year})
+        </div>
+        {/* <div tw="text-white w-full font-light [font-size:18px] mb-1">
+          {imdb_info?.en_name}
+        </div> */}
+      </>
+    )
+  }
   return (
-    <Layout>
+    <Layout showBack={true}>
       <div tw="flex flex-1 flex-col lg:flex-row">
         <div tw="relative lg:w-1/3">
-          <h3 tw="text-white w-full  [font-size:30px] px-4 lg:hidden">
-            {imdb_info?.en_name}
-          </h3>
+          <div tw=" px-4 lg:hidden text-center">{renderTitle()}</div>
           <VideoPlayer
             onPlay={() => setPlaying(true)}
             imgSrc={imdb_info?.poster || ''}
@@ -94,11 +104,7 @@ export const MovieDetailed = ({
                       selectedVideoUrl?.encode_video_url
                     }
                     name={obj.label}
-                    title={
-                      obj.label.toLowerCase().includes('оригинал')
-                        ? ALL_LANG[0]
-                        : ALL_LANG[1] + ` #${index + 1}`
-                    }
+                    title={obj.label}
                     onChange={() => setSelectedVideoUrl(obj)}
                   />
                   <div tw="clear-both"></div>
@@ -108,9 +114,7 @@ export const MovieDetailed = ({
           </div>
         </div>
         <div tw="px-4 lg:py-2 lg:w-2/3">
-          <h3 tw="text-white w-full text-left [font-size:30px] hidden lg:block">
-            {imdb_info?.en_name}&nbsp;{imdb_info?.year}
-          </h3>
+          <div tw="text-left hidden lg:block">{renderTitle()}</div>
 
           <div tw=" text-white">
             <div>

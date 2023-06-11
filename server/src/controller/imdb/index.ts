@@ -4,6 +4,7 @@ import { postImdbAsync } from './post-imdb.controller';
 import { putImdbAsync } from './put-imdb.controller';
 import { deleteImdbAsync } from './delete-imdb.controller';
 import { searchImdbMovieInfoAsync } from './search-imdb.controller';
+import { searchUANameMovieInfoAsync } from './search-ua-name.controller';
 
 export const imdb = {
     getImdbAllAsync,
@@ -12,4 +13,5 @@ export const imdb = {
     postImdbAsync,
     putImdbAsync,
     searchImdbMovieInfoAsync,
+    searchUANameMovieInfoAsync,
 };

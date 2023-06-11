@@ -48,22 +48,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
           }
         ],
         "responses": {
@@ -314,6 +298,43 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ IError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "api/imdb/search_ua_name/": {
+      "post": {
+        "operationId": "",
+        "summary": "",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ISearchUANameImdbBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IImdbResultResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ any"
                 }
               }
             }
@@ -872,40 +893,6 @@
           }
         }
       },
-      "get": {
-        "operationId": "",
-        "summary": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ITranslationResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ void"
-                }
-              }
-            }
-          }
-        }
-      },
       "put": {
         "operationId": "",
         "summary": "",
@@ -929,6 +916,40 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ITranslationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ void"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "",
+        "summary": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -1038,6 +1059,7 @@
           "year",
           "genre",
           "name",
+          "ua_name",
           "imdb_id",
           "poster",
           "video_type"
@@ -1053,6 +1075,9 @@
             "type": "string"
           },
           "name": {
+            "type": "string"
+          },
+          "ua_name": {
             "type": "string"
           },
           "imdb_id": {
@@ -1083,17 +1108,14 @@
         "type": "object",
         "required": [
           "imdb_info",
-          "rezka_movie"
+          "rezka_movie_href"
         ],
         "properties": {
           "imdb_info": {
             "type": "IImdbResponse"
           },
-          "rezka_movie": {
-            "type": "IRezkaMovieResponse"
-          },
-          "translation": {
-            "type": "ITranslationResponse"
+          "rezka_movie_href": {
+            "type": "string"
           }
         }
       },
@@ -1112,6 +1134,9 @@
             "type": "string"
           },
           "en_name": {
+            "type": "string"
+          },
+          "ua_name": {
             "type": "string"
           },
           "poster": {
@@ -1250,68 +1275,6 @@
           }
         }
       },
-      "IRezkaMovieResponse": {
-        "type": "object",
-        "required": [
-          "id",
-          "en_name",
-          "url_id",
-          "year",
-          "href",
-          "video_type",
-          "rezka_imdb_id"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "en_name": {
-            "type": "string"
-          },
-          "url_id": {
-            "type": "string"
-          },
-          "year": {
-            "type": "integer"
-          },
-          "href": {
-            "type": "string"
-          },
-          "video_type": {
-            "type": "ERezkaVideoType"
-          },
-          "rezka_imdb_id": {
-            "type": "string"
-          }
-        }
-      },
-      "ITranslationResponse": {
-        "type": "object",
-        "required": [
-          "id",
-          "data_ads",
-          "data_camrip",
-          "data_director",
-          "label"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "data_ads": {
-            "type": "string"
-          },
-          "data_camrip": {
-            "type": "string"
-          },
-          "data_director": {
-            "type": "string"
-          },
-          "label": {
-            "type": "string"
-          }
-        }
-      },
       "IPostImdbBody": {
         "type": "object",
         "required": [
@@ -1328,6 +1291,9 @@
             "type": "string"
           },
           "en_name": {
+            "type": "string"
+          },
+          "ua_name": {
             "type": "string"
           },
           "poster": {
@@ -1359,6 +1325,9 @@
         ],
         "properties": {
           "en_name": {
+            "type": "string"
+          },
+          "ua_name": {
             "type": "string"
           },
           "poster": {
@@ -1407,6 +1376,15 @@
             "type": "string"
           },
           "code": {
+            "type": "string"
+          }
+        }
+      },
+      "ISearchUANameImdbBody": {
+        "type": "object",
+        "required": [],
+        "properties": {
+          "id": {
             "type": "string"
           }
         }
@@ -1552,11 +1530,41 @@
           }
         }
       },
+      "IRezkaMovieResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "en_name",
+          "year",
+          "href",
+          "video_type",
+          "rezka_imdb_id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "en_name": {
+            "type": "string"
+          },
+          "year": {
+            "type": "integer"
+          },
+          "href": {
+            "type": "string"
+          },
+          "video_type": {
+            "type": "ERezkaVideoType"
+          },
+          "rezka_imdb_id": {
+            "type": "string"
+          }
+        }
+      },
       "IPostRezkaMovieBody": {
         "type": "object",
         "required": [
           "en_name",
-          "url_id",
           "year",
           "href",
           "video_type",
@@ -1564,9 +1572,6 @@
         ],
         "properties": {
           "en_name": {
-            "type": "string"
-          },
-          "url_id": {
             "type": "string"
           },
           "year": {
@@ -1587,7 +1592,6 @@
         "type": "object",
         "required": [
           "en_name",
-          "url_id",
           "year",
           "href",
           "video_type",
@@ -1595,9 +1599,6 @@
         ],
         "properties": {
           "en_name": {
-            "type": "string"
-          },
-          "url_id": {
             "type": "string"
           },
           "year": {
@@ -1637,13 +1638,25 @@
         "type": "object",
         "required": [
           "rezka_movie_id",
-          "translation_id"
+          "translation_id",
+          "data_ads",
+          "data_camrip",
+          "data_director"
         ],
         "properties": {
           "rezka_movie_id": {
             "type": "string"
           },
           "translation_id": {
+            "type": "string"
+          },
+          "data_ads": {
+            "type": "string"
+          },
+          "data_camrip": {
+            "type": "string"
+          },
+          "data_director": {
             "type": "string"
           }
         }
@@ -1652,6 +1665,7 @@
         "type": "object",
         "required": [
           "searchImdb",
+          "updateImdbUaName",
           "updateRezkaCartoon",
           "updateRezkaFilm",
           "updateRezkaImdbId",
@@ -1659,6 +1673,9 @@
         ],
         "properties": {
           "searchImdb": {
+            "type": "boolean"
+          },
+          "updateImdbUaName": {
             "type": "boolean"
           },
           "updateRezkaCartoon": {
@@ -1672,6 +1689,33 @@
           },
           "updateRezkaTranslations": {
             "type": "boolean"
+          }
+        }
+      },
+      "ITranslationResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "data_ads",
+          "data_camrip",
+          "data_director",
+          "label"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "data_ads": {
+            "type": "string"
+          },
+          "data_camrip": {
+            "type": "string"
+          },
+          "data_director": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
           }
         }
       },

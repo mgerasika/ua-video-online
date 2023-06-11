@@ -6,6 +6,7 @@ interface IApiUrl {
         imdb: {
             id: (id?: string) => IUrlItem;
             search: IUrlItem;
+            search_ua_name: IUrlItem;
         };
         groupMovie: {
             id: (id?: string) => IUrlItem;
@@ -41,6 +42,7 @@ export const API_URL = createUrls<IApiUrl>({
         imdb: {
             id: (id?: string) => EMPTY_URL_ITEM,
             search: EMPTY_URL_ITEM,
+            search_ua_name: EMPTY_URL_ITEM,
         },
 
         rezkaMovie: {

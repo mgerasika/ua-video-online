@@ -86,6 +86,7 @@ export const searchImdbMovieInfoAsync = async (
                 params: {
                     apikey: activeKey,
                     type: 'movie',
+                    plot: 'full',
                     ...p,
                 },
             });

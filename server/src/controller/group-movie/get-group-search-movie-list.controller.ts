@@ -12,6 +12,7 @@ export interface IGroupMovieResponse {
     year: number;
     genre: string;
     name: string;
+    ua_name: string;
     imdb_id: string;
     has_ua?: boolean;
     has_en?: boolean;
@@ -72,7 +73,8 @@ export const groupSearchMoviesAsync = async (): Promise<IQueryReturn<IGroupMovie
                 genre: imdbJson.Genre,
                 imdb_id: imdb.id,
                 rate: +imdb.imdb_rating,
-                name: movie.en_name,
+                name: imdb.en_name,
+                ua_name: imdb.ua_name || '',
                 year: +imdb.year,
                 has_en: translations?.some((t) => t.label.toLowerCase().includes('ориг')),
                 has_ua: translations?.some((t) => t.label.toLowerCase().includes('укр')),

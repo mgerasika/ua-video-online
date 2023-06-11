@@ -12,9 +12,9 @@
     "engines": {
         "node": "16"
     },
-    "main": "lib/functions/src/index.js",
+    "main": "dist/functions/src/index.js",
     "_moduleAliases": {
-        "@server": "lib/src/"
+        "@server": "dist/src/"
     },
     "dependencies": {
         "firebase-admin": "^11.5.0",

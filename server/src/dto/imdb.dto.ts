@@ -6,6 +6,8 @@ export interface IImdbDto {
 
     en_name: string;
 
+    ua_name?: string;
+
     poster: string;
 
     imdb_rating: number;
@@ -21,6 +23,9 @@ export class ImdbDto implements Omit<IImdbDto, 'jsonObj'> {
 
     @Column({ nullable: true, type: 'text' })
     en_name!: string;
+
+    @Column({ nullable: true, type: 'text' })
+    ua_name?: string;
 
     @Column({ nullable: true, type: 'text' })
     poster!: string;

@@ -5,4 +5,5 @@ export interface IMovieFilter {
   years: string[]
   languages: string[]
   video_types: ERezkaVideoType[]
+  searchText: string
 }

@@ -32,11 +32,11 @@ export async function getStaticProps({
 }): Promise<{
   props: IProps
 }> {
-  const [groupMovie] = await toQuery(() => api.groupMovieIdGet(params.id, {}))
+  const [groupMovie] = await toQuery(() => api.groupMovieIdGet(params.id))
 
   return {
     props: {
-      rezka_movie_href: groupMovie?.rezka_movie.href,
+      rezka_movie_href: groupMovie?.rezka_movie_href,
       imdb_info: groupMovie?.imdb_info,
     },
   }

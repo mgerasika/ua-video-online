@@ -24,7 +24,7 @@ app.put(API_URL.api.imdb.id().toString(), async (req: IRequest, res: IResponse) 
     return res.send(data);
 });
 
-export const putImdbAsync = async (id: string, data: Omit<ImdbDto, 'id'>) => {
+export const putImdbAsync = async (id: string, data: Omit<Partial<ImdbDto>, 'id'>) => {
     return await typeOrmAsync<ImdbDto>(async (client) => {
         const entityToUpdate = await client.getRepository(ImdbDto).findOne({ where: { id } });
         if (!entityToUpdate) {

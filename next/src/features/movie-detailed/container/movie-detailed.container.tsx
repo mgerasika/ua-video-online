@@ -73,18 +73,12 @@ export const MovieDetailedContainer = ({
   useEffect(() => {
     if (parseCypressData?.translations.length) {
       setEncodeUrls(
-        parseCypressData.translations
-          .filter(
-            f =>
-              f.translation.toLowerCase().includes('ориг') ||
-              f.translation.toLowerCase().includes('укр'),
-          )
-          .map(obj => {
-            return {
-              encode_video_url: obj.encoded_video_url,
-              label: obj.translation,
-            }
-          }),
+        parseCypressData.translations.map(obj => {
+          return {
+            encode_video_url: obj.encoded_video_url,
+            label: obj.translation,
+          }
+        }),
       )
     }
   }, [parseCypressData])

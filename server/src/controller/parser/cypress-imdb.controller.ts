@@ -3,6 +3,7 @@ import axios from 'axios';
 import { API_URL } from '@server/constants/api-url.constant';
 import { IQueryReturn, toQuery, toQueryPromise } from '@server/utils/to-query.util';
 import { rejects } from 'assert';
+import { runCypressAsync } from '@server/utils/run-cypress.util';
 const cypress = require('cypress');
 
 interface IRequest extends IExpressRequest {
@@ -26,25 +27,8 @@ app.post(API_URL.api.parser.cypressImdb.toString(), async (req: IRequest, res: I
 });
 
 export const getCypressImdbAsync = async (href: string): Promise<IQueryReturn<{ id: string }>> => {
-    return toQueryPromise<{ id: string }>((resolve, reject) => {
-        cypress
-            .run({
-                env: {
-                    CYPRESS_NO_COMMAND_LOG: 1,
-                    URL: href,
-                },
-                quiet: true,
-                spec: './cypress/integration/get-imdb.spec.ts',
-            })
-            .then((results: any) => {
-                try {
-                    resolve(JSON.parse(results.runs[0].tests[0].attempts[0].error.message));
-                } catch (ex) {
-                    reject('error when try got error from test ' + JSON.stringify(results, null, 2));
-                }
-            })
-            .catch((err: any) => {
-                reject('error when execute test ' + err);
-            });
+    return await runCypressAsync<{ id: string }>({
+        href: href,
+        spec: './cypress/integration/get-imdb.spec.ts',
     });
 };

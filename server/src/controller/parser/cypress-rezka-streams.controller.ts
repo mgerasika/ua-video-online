@@ -3,6 +3,7 @@ import axios from 'axios';
 import { API_URL } from '@server/constants/api-url.constant';
 import { IQueryReturn, toQuery, toQueryPromise } from '@server/utils/to-query.util';
 import { rejects } from 'assert';
+import { runCypressAsync } from '@server/utils/run-cypress.util';
 const cypress = require('cypress');
 
 export interface IVideoInfoResult {
@@ -19,8 +20,8 @@ export interface ITranslation {
     data_translator_id: string;
     data_camrip: string;
     data_ads: string;
-	data_director: string;
-	encoded_video_url: string;
+    data_director: string;
+    encoded_video_url: string;
 }
 
 export interface IResolutionItem {
@@ -54,25 +55,8 @@ app.post(API_URL.api.parser.cypressStreams.toString(), async (req: IRequest, res
 });
 
 export const getCypressRezkaStreamsAsync = async (href: string): Promise<IQueryReturn<IVideoInfoResult>> => {
-    return toQueryPromise<IVideoInfoResult>((resolve, reject) => {
-        cypress
-            .run({
-                env: {
-                    CYPRESS_NO_COMMAND_LOG: 1,
-                    URL: href,
-                },
-                quiet: true,
-                spec: './cypress/integration/get-rezka-streams.spec.ts',
-            })
-            .then((results: any) => {
-                try {
-                    resolve(JSON.parse(results.runs[0].tests[0].attempts[0].error.message));
-                } catch (ex) {
-                    reject('error when try got error from test ' + JSON.stringify(results, null, 2));
-                }
-            })
-            .catch((err: any) => {
-                reject('error when execute test ' + err);
-            });
+    return await runCypressAsync({
+        href: decodeURIComponent(href),
+        spec: './cypress/integration/get-rezka-streams.spec.ts',
     });
 };

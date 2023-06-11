@@ -30,6 +30,14 @@ export const MovieCard = ({ movie }: IProps): JSX.Element => {
         </div>
 
         <div tw="bottom-0 left-0 mt-1">
+          <div tw="text-white [font-size: 18px] pt-2 text-left font-light pb-1">
+            {movie.name} / {movie.ua_name} ({movie.year})
+          </div>
+          {/* {movie.name && (
+            <div tw="text-white [font-size: 16px] font-light text-left">
+              {movie.name}
+            </div>
+          )} */}
           <StatusTag tw="mr-2 my-1 float-left">{movie.year}</StatusTag>
           {movie.genre
             .split(',')
@@ -46,9 +54,6 @@ export const MovieCard = ({ movie }: IProps): JSX.Element => {
             <StatusTag tw="mr-2 my-1 float-left">{ALL_LANG[1]}</StatusTag>
           )}
         </div>
-        {/* <p tw="clear-both text-white [font-size: larger] pt-2 text-center">
-          {imdb_info.en_name}
-        </p> */}
       </div>
     </Link>
   )

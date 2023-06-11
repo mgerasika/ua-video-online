@@ -23,11 +23,12 @@ export const MoviesContainer = ({
   allGenres,
   allYears,
 }: IProps): JSX.Element => {
-  const [filter, setFilter] = useLocalStorageState<IMovieFilter>('filter-v2', {
+  const [filter, setFilter] = useLocalStorageState<IMovieFilter>('filter-v3', {
     genres: [],
     years: [],
     video_types: [],
     languages: [],
+    searchText: '',
   })
 
   const [page, setPage] = useState(0)
@@ -35,6 +36,14 @@ export const MoviesContainer = ({
   const filteredMovies = useMemo<IGroupMovieResponse[]>(() => {
     let res = [...allMovies]
 
+    if (filter.searchText) {
+      const search = filter.searchText.toLowerCase()
+      res = res.filter(
+        movie =>
+          movie.name.toLowerCase().includes(search) ||
+          movie.ua_name.toLowerCase().includes(search),
+      )
+    }
     if (filter?.video_types.length) {
       res = res.filter(movie => filter.video_types.includes(movie.video_type))
     }
@@ -70,8 +79,6 @@ export const MoviesContainer = ({
         )
       })
     }
-    console.log('onFilterChange', filter)
-    console.log('movies', res)
     return res
   }, [allMovies, filter])
 
@@ -108,6 +115,8 @@ export const MoviesContainer = ({
   return (
     <>
       <MoviesComponent
+        allCount={allMovies.length}
+        filteredCount={filteredMovies.length}
         allGenres={allGenres}
         allYears={allYears}
         movies={movies}

@@ -6,6 +6,7 @@ export async function oneByOneAsync<T>(items: T[], fn: (item: T) => Promise<void
                     try {
                         fn(item).then(resolve).catch(reject);
                     } catch (ex) {
+                        console.log('catch inside one by one', ex);
                         reject(ex);
                     }
                 }, settings?.timeout);

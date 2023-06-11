@@ -22,8 +22,6 @@ export interface IRezkaMovieDto {
 
     en_name: string;
 
-    url_id: string;
-
     year: number;
 
     href: string;
@@ -40,9 +38,6 @@ export class RezkaMovieDto implements IRezkaMovieDto {
 
     @Column({ nullable: true, type: 'text' })
     en_name!: string;
-
-    @Column({ nullable: false, type: 'text', unique: true })
-    url_id!: string;
 
     @Column({ nullable: true, type: 'numeric' })
     year!: number;

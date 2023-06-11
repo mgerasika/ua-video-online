@@ -11,6 +11,8 @@ import { IMovieFilter } from '../../../interfaces/movie-filter.interface'
 import { Layout } from '../../../general-ui/layout/layout.component'
 
 interface IProps {
+  allCount: number
+  filteredCount: number
   allYears: string[]
   allGenres: string[]
   filter: IMovieFilter
@@ -18,6 +20,8 @@ interface IProps {
   movies: IGroupMovieResponse[] | undefined
 }
 export const MoviesComponent = ({
+  filteredCount,
+  allCount,
   movies,
   allGenres,
   allYears,
@@ -51,13 +55,22 @@ export const MoviesComponent = ({
   }, [400])
 
   return (
-    <Layout>
+    <Layout showBack={false}>
       <MovieFilter
         allGenres={allGenres}
         allYears={allYears}
         filter={filter}
         onFilterChange={onFilterChange}
       />
+      <div tw="text-left text-white pb-1 px-1">
+        {filteredCount === allCount ? (
+          <> {allCount}</>
+        ) : (
+          <>
+            {filteredCount} / {allCount}
+          </>
+        )}
+      </div>
       <div tw="grid 2xl:grid-cols-5 md:grid-cols-2 lg:grid-cols-3 grid-cols-1  gap-x-6 gap-y-12  justify-items-center">
         {movies?.map(movie => {
           return <MovieCard key={movie.imdb_id} movie={movie} />

@@ -40,28 +40,30 @@ export const parseRezkaDetailsAsync = async (imdb_id: string): Promise<IQueryRet
         return [undefined, `Found wrong count of movies ${dbMovie?.length}`];
     }
 
-    const [dbTranslations, dbTranslationError] = await dbService.translation.getTranslationAllAsync({ imdb_id });
-    if (dbTranslationError) {
-        return [undefined, 'dbTranslationError ' + dbTranslationError];
+    const [dbRelations, dbRelationsError] = await dbService.rezkaMovieTranslation.getRezkaMovieTranslationAllAsync({
+        rezka_movie_id: dbMovie[0].id,
+    });
+    if (dbRelationsError) {
+        return [undefined, 'dbRelationsError ' + dbRelationsError];
     }
-    if (!dbTranslations || dbTranslations?.length === 0) {
-        return [undefined, `Found wrong count of translations ${dbTranslations?.length}`];
+    if (!dbRelations || dbRelations?.length === 0) {
+        return [undefined, `Found wrong count of relations ${dbRelations?.length}`];
     }
-    console.log('dbTranslation', dbTranslations);
+    console.log('dbRelations', dbRelations);
 
     const href = dbMovie.length ? dbMovie[0].href : '';
-    const [response, error] = await toQuery(async () => await axios.get(href, REZKA_HEADERS));
-    if (error) {
-        return [undefined, `request error ${href} ` + error];
+    const [rezkaResponse, rezkaError] = await toQuery(async () => await axios.get(href, REZKA_HEADERS));
+    if (rezkaError) {
+        return [undefined, `request error ${href} ` + rezkaError];
     }
-    const html = response?.data;
+    const html = rezkaResponse?.data;
     const $ = cheerio.load(html);
     let year = href.replace('.html', '');
     year = year.substr(year.length - 4);
 
     const videoId = href.split('/').pop()?.split('-').shift();
     const cookies =
-        (response?.headers['set-cookie'] || '')
+        (rezkaResponse?.headers['set-cookie'] || '')
             .toString()
             .split(';')
             .find((cookie) => cookie.includes('PHPSESSID')) || '';
@@ -69,8 +71,10 @@ export const parseRezkaDetailsAsync = async (imdb_id: string): Promise<IQueryRet
 
     console.log('href', href);
 
+    let error: string | undefined = undefined;
     const res: IRezkaInfoByIdResponse[] = [];
-    await oneByOneAsync(dbTranslations, async (activeTranslation): Promise<void> => {
+    await oneByOneAsync(dbRelations, async (activeRelation): Promise<void> => {
+        const postDataStr = `id=${videoId}&translator_id=${activeRelation.translation_id}&is_camrip=${activeRelation.data_camrip}&is_ads=${activeRelation.data_ads}&is_director=${activeRelation.data_director}&favs=7e980c10-dae0-4b55-a45a-2315678e8e7e&action=get_movie`;
         const [cdnResponse, cdnError] = await toQuery(
             async () =>
                 await axios({
@@ -83,23 +87,32 @@ export const parseRezkaDetailsAsync = async (imdb_id: string): Promise<IQueryRet
                         Origin: 'https://rezka.ag',
                         Referrer: 'https://rezka.ag/series/documentary/57418-makgregor-navsegda-2023.html',
                     },
-                    data: `id=${videoId}&translator_id=${activeTranslation.id}&is_camrip=${activeTranslation.data_camrip}&is_ads=${activeTranslation.data_ads}&is_director=${activeTranslation.data_director}&favs=7e980c10-dae0-4b55-a45a-2315678e8e7e&action=get_movie`,
+                    data: postDataStr,
                 }),
         );
         if (cdnError) {
-            throw 'get cdn error ' + cdnError;
+            error = 'get cdn error ' + cdnError + ' postData = ' + postDataStr;
+            return;
         }
         if (!cdnResponse?.data.success) {
-            throw 'cdn custom error session_id=' + phpSessionId + ' error =' + cdnResponse?.data?.message;
+            error =
+                'cdn custom error session_id=' +
+                phpSessionId +
+                ' error =' +
+                cdnResponse?.data?.message +
+                ' href = ' +
+                href +
+                ' postData = ' +
+                postDataStr;
         }
         console.log('get_cdn_series', cdnResponse?.data);
+        const [translation] = await dbService.translation.getTranslationByIdAsync(activeRelation.translation_id);
         res.push({
-            translation_id: activeTranslation.id,
-            translation_name: activeTranslation.label,
+            translation_id: activeRelation.id,
+            translation_name: translation?.label || '',
             cdn_encoded_video_url: cdnResponse?.data.url,
         });
     });
-    // TODO refactor -return array
 
-    return [res];
+    return [res, error];
 };

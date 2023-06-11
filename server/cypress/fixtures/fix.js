@@ -15,11 +15,13 @@ function waitForStreams() {
 			const script = [...window.document.body.getElementsByTagName('script')].find(f => f.innerHTML.includes('initCDNMoviesEvents'));
 			// console.log('script', script);
 			if (script) {
-				const regex = /"streams":"(.*?)"/g;
-				const match = regex.exec(script.innerText);
+				const streamRegex = /"streams":"(.*?)"/g;
+				const cdnRegexp = /initCDNMoviesEvents\((\d+),\s?(\d+)\s?,\s?(\d+)\s?,\s?(\d+)\s?,\s?(\d+)\s?,/g;
+				const streamMatch = streamRegex.exec(script.innerText);
+				const cdnRegexpMatch = cdnRegexp.exec(script.innerText);
 
-				if (match) {
-					const newStreamId = match[1].replaceAll('\\/', '/');
+				if (streamMatch) {
+					const newStreamId = streamMatch[1].replaceAll('\\/', '/');
 
 					// console.log('newStreamId', newStreamId);
 					const newStreams = window.o.FGeRtNzK(newStreamId);
@@ -31,10 +33,17 @@ function waitForStreams() {
 
 					const rawResultDiv = document.createElement('div');
 					rawResultDiv.id = "rawResult";
-					rawResultDiv.innerHTML = newStreamId;
+					rawResultDiv.innerHTML = JSON.stringify({
+						data_translator_id: cdnRegexpMatch[2],
+						data_camrip: cdnRegexpMatch[3],
+						data_ads: cdnRegexpMatch[4],
+						data_director: cdnRegexpMatch[5],
+						encoded_video_url: newStreamId,
+					});
+					console.log('rawResultDiv', rawResultDiv.innerHTML);
 					document.body.appendChild(rawResultDiv);
 
-					window.o._translatorsList = document.getElementById('translators-list')
+					window.o._translatorsList = document.getElementById('translators-list');
 				} else {
 					console.error('No streams found.');
 				}

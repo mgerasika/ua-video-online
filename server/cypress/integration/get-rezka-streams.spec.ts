@@ -6,7 +6,10 @@ import {
 
 describe('get-rezka-stream', () => {
     it('get-stream', () => {
-        const url = Cypress.env('URL') || 'https://rezka.ag/cartoons/fantasy/25701-tayna-koko-2017.html';
+        const url =
+            Cypress.env('URL') ||
+            'https://rezka.ag/cartoons/fiction/17702-lego-supergeroi-dc-comics-liga-spravedlivosti-ataka-legiona-gibeli-2015.html' ||
+            'https://rezka.ag/cartoons/fantasy/25701-tayna-koko-2017.html';
         cy.log('ENV', url);
         getStreams({
             url: url,
@@ -57,9 +60,9 @@ const getStreams = async ({ url, callback }: { url: string; callback: (outputIte
                     imdb_id = x.attr('href') || '';
                 });
 
-            let encoded_video_url = '';
+            let encoded_video_url_json: any = {};
             cy.get('#rawResult').then((x) => {
-                encoded_video_url = x.text();
+                encoded_video_url_json = JSON.parse(x.text());
             });
 
             const tmpUrl = url.replace('.html', '');
@@ -74,11 +77,7 @@ const getStreams = async ({ url, callback }: { url: string; callback: (outputIte
                         translations.push({
                             resolutions: streamStringToObject(streamStr),
                             translation: 'default',
-                            data_translator_id: '',
-                            data_ads: '',
-                            data_camrip: '',
-                            data_director: '',
-                            encoded_video_url,
+                            ...encoded_video_url_json,
                         });
 
                         callback({
@@ -89,38 +88,25 @@ const getStreams = async ({ url, callback }: { url: string; callback: (outputIte
                             translations,
                         });
                     } else {
+                        cy.get('#translators-list').should('be.visible').find('li').last().click();
                         cy.get('#translators-list')
                             .should('be.visible')
                             .find('li')
                             .each((li, index) => {
-                                if (index == 0) {
-                                    const streamStr = result.text();
+                                cy.wrap(li).click();
+                                cy.wait('@get_cdn_series').then((intercept) => {
+                                    const obj = JSON.parse(intercept?.response?.body);
+                                    const streamStr = (wnd as any).o.FGeRtNzK(obj.url);
                                     translations.push({
                                         resolutions: streamStringToObject(streamStr),
-                                        translation: li.text(),
-                                        data_translator_id: '',
-                                        data_ads: '',
-                                        data_camrip: '',
-                                        data_director: '',
-                                        encoded_video_url,
+                                        translation: li.text().trim(),
+                                        data_translator_id: li.attr('data-translator_id') || '',
+                                        data_ads: li.attr('data-ads') || '',
+                                        data_camrip: li.attr('data-camrip') || '',
+                                        data_director: li.attr('data-director') || '',
+                                        encoded_video_url: obj.url,
                                     });
-                                    return;
-                                } else {
-                                    cy.wrap(li).click();
-                                    cy.wait('@get_cdn_series').then((intercept) => {
-                                        const obj = JSON.parse(intercept?.response?.body);
-                                        const streamStr = (wnd as any).o.FGeRtNzK(obj.url);
-                                        translations.push({
-                                            resolutions: streamStringToObject(streamStr),
-                                            translation: li.text().trim(),
-                                            data_translator_id: li.attr('data-translator_id') || '',
-                                            data_ads: li.attr('data-ads') || '',
-                                            data_camrip: li.attr('data-camrip') || '',
-                                            data_director: li.attr('data-director') || '',
-                                            encoded_video_url: obj.url,
-                                        });
-                                    });
-                                }
+                                });
                             })
                             .then(() => {
                                 callback({
