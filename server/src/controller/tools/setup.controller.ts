@@ -76,7 +76,7 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
     if (props.uploadActorPhotoToCdn) {
         const [dbActors = []] = await dbService.actor.getActorListAllAsync({});
         await oneByOneAsync(
-            dbActors, //.filter((f) => !f.photo_url),
+            dbActors.filter((f) => !f.photo_url),
             async (dbActor) => {
                 const fileName = `${dbActor.id}.jpg`;
                 const [hasFile] = await dbService.cdn.hasFileCDNAsync({ fileName: fileName });
