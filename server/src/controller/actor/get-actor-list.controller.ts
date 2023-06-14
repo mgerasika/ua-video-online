@@ -30,8 +30,10 @@ export const getActorListAllAsync = async (query: IRequest['query']) => {
         const { rows } = await client.query(`select * from(select distinct on(actor.id)actor.id ,actor.* FROM actor
 			left join rezka_movie_actor on actor.id = rezka_movie_actor.actor_id 
 			left join rezka_movie on rezka_movie.id = rezka_movie_actor.rezka_movie_id 
+			inner join rezka_movie_translation on rezka_movie_translation.rezka_movie_id = rezka_movie.id  
 			left join imdb on imdb.id = rezka_movie.rezka_imdb_id 
-			${sql_where('actor.name', query.actor_name)} 
+			where rezka_movie_translation.translation_id is not null and rezka_movie_translation.translation_id != ''
+			${sql_and('actor.name', query.actor_name)} 
 			${sql_and('rezka_movie_actor.rezka_movie_id', query.movie_id)} 
 			${sql_and('imdb.id', query.imdb_id)} 
 			)t order by t.name`);
