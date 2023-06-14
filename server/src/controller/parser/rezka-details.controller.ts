@@ -73,7 +73,8 @@ export const parseRezkaDetailsAsync = async (imdb_id: string): Promise<IQueryRet
 
     let error: string | undefined = undefined;
     const res: IRezkaInfoByIdResponse[] = [];
-    await oneByOneAsync(dbRelations, async (activeRelation): Promise<void> => {
+    await oneByOneAsync(dbRelations.filter(r=>r.translation_id), async (activeRelation): Promise<void> => {
+        console.log('activeRelation', activeRelation);
         const postDataStr = `id=${videoId}&translator_id=${activeRelation.translation_id}&is_camrip=${activeRelation.data_camrip}&is_ads=${activeRelation.data_ads}&is_director=${activeRelation.data_director}&favs=7e980c10-dae0-4b55-a45a-2315678e8e7e&action=get_movie`;
         const [cdnResponse, cdnError] = await toQuery(
             async () =>

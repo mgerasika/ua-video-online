@@ -5,8 +5,12 @@ import { groupMovie } from './group-movie';
 import { rezkaMovie } from './rezka-movie';
 import { translation } from './translation';
 import { rezkaMovieTranslation } from './rezka_movie_translation';
+import { actor } from './actor';
+import { rezkaMovieActor } from './rezka_movie_actor';
+import { cdn } from './cdn';
 
 export const dbService = {
+	cdn,
     rezkaMovie,
     groupMovie,
     imdb,
@@ -14,4 +18,6 @@ export const dbService = {
     parser,
     translation,
     rezkaMovieTranslation,
+    actor,
+    rezkaMovieActor,
 };

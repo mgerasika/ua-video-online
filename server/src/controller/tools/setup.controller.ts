@@ -16,6 +16,7 @@ import { IResolutionItem } from '../parser/cypress-rezka-streams.controller';
 import { CONST } from '@server/constants/const.contant';
 import { data } from 'cypress/types/jquery';
 import { ITranslationDto } from '@server/dto/translation.dto';
+import { IImdbResultResponse } from '../imdb/search-imdb.controller';
 
 export interface ISetupBody {
     searchImdb: boolean;
@@ -24,6 +25,8 @@ export interface ISetupBody {
     updateRezkaFilm: boolean;
     updateRezkaImdbId: boolean;
     updateRezkaTranslations: boolean;
+    addActorsFromMovieDb: boolean;
+    uploadActorPhotoToCdn: boolean;
 }
 
 interface IRequest extends IExpressRequest {
@@ -40,6 +43,8 @@ const schema = Joi.object<ISetupBody>({
     updateRezkaImdbId: Joi.boolean().required(),
     updateRezkaTranslations: Joi.boolean().required(),
     updateImdbUaName: Joi.boolean().required(),
+    addActorsFromMovieDb: Joi.boolean().required(),
+    uploadActorPhotoToCdn: Joi.boolean().required(),
     // rezkaType: Joi.string()
     //     .valid(...Object.values(ERezkaVideoType))
     //     .required(),
@@ -67,6 +72,53 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
     const logs = createLogs();
 
     const [dbMovies = []] = await dbService.rezkaMovie.getRezkaMoviesAllAsync({});
+
+    if (props.uploadActorPhotoToCdn) {
+        const [dbActors = []] = await dbService.actor.getActorListAllAsync({});
+        await oneByOneAsync(
+            dbActors, //.filter((f) => !f.photo_url),
+            async (dbActor) => {
+                const fileName = `${dbActor.id}.jpg`;
+                const [hasFile] = await dbService.cdn.hasFileCDNAsync({ fileName: fileName });
+                if (hasFile) {
+                    return;
+                }
+
+                // const [movies, moviesError] = await dbService.groupMovie.groupMovieListV2Async({ actor_id: dbActor.id });
+                // if (moviesError) {
+                //     return logs.push('not found any movie with this actor' + dbActor.name);
+                // }
+                const [searchSuccess, searchError] = await dbService.tools.imageSearchAsync(
+                    `${dbActor.name} portrait, actor`,
+                );
+                if (searchError) {
+                    return logs.push(`can not find image for actor`, searchError);
+                } else if (searchSuccess?.length) {
+                    logs.push('search success ' + searchSuccess[0]);
+                }
+
+                if (searchSuccess?.length) {
+                    const [successUpload, errorUpload] = await dbService.cdn.uploadFileToCDNAsync({
+                        fileName: fileName,
+                        fileUrl: searchSuccess[0],
+                    });
+                    if (errorUpload) {
+                        return logs.push(`error upload to cdn`, errorUpload);
+                    }
+                    logs.push(`success upload to cdn`, successUpload);
+                    const [, putActorError] = await dbService.actor.putActorAsync(dbActor.id, {
+                        ...dbActor,
+                        photo_url: successUpload || '',
+                    });
+                    if (putActorError) {
+                        logs.push('can not put photo_url', putActorError);
+                    } else {
+                        logs.push('put actor photo success ' + successUpload);
+                    }
+                }
+            },
+        );
+    }
 
     if (props.updateRezkaCartoon) {
         const [parseItems = [], parserError] = await dbService.parser.parseRezkaAllPagesAsync({
@@ -225,14 +277,114 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
         );
     }
 
+    if (props.addActorsFromMovieDb) {
+        const items = dbMovies.filter((f) => f.rezka_imdb_id);
+        logs.push('addActorsFromMovieDb ' + items.length);
+        await oneByOneAsync(
+            shuffleArray(items),
+            async (dbMovie, idx) => {
+                console.log('idx', idx);
+                const [imdbItem, imdbError] = await dbService.imdb.getImdbByIdAsync(dbMovie.rezka_imdb_id);
+                if (imdbError) {
+                    return logs.push(`imdb not found`);
+                } else if (imdbItem) {
+                    const json: IImdbResultResponse = JSON.parse(imdbItem.json);
+                    const actors = json.Actors.split(',');
+                    await oneByOneAsync(actors, async (actor) => {
+                        const [, postError] = await dbService.actor.postActorAsync({
+                            name: actor.trim(),
+                            photo_url: null as unknown as string,
+                        });
+                        if (postError) {
+                            logs.push(`post actor error ${dbMovie.id} error=${postError}`);
+                        } else {
+                            logs.push('post actor success', actor);
+                        }
+
+                        const [actors] = await dbService.actor.getActorListAllAsync({ actor_name: actor.trim() });
+                        if (actors?.length) {
+                            //todo fix
+                            const [, relationError] = await dbService.rezkaMovieActor.postRezkaMovieActorAsync({
+                                actor_id: actors[0].id,
+                                rezka_movie_id: dbMovie.id,
+                                is_actor: true,
+                                is_director: false,
+                                is_writer: false,
+                            });
+                            if (relationError) {
+                                logs.push('add actor relation error ' + relationError);
+                            }
+                        }
+                    });
+
+                    const writers = json.Writer.split(',');
+                    await oneByOneAsync(writers, async (writer) => {
+                        const [, postError] = await dbService.actor.postActorAsync({
+                            name: writer.trim(),
+                            photo_url: null as unknown as string,
+                        });
+                        if (postError) {
+                            logs.push(`post writer error ${dbMovie.id} error=${postError}`);
+                        } else {
+                            logs.push('post writer success', writer);
+                        }
+
+                        const [actors] = await dbService.actor.getActorListAllAsync({ actor_name: writer.trim() });
+                        if (actors?.length) {
+                            //todo fix
+                            const [, relationError] = await dbService.rezkaMovieActor.postRezkaMovieActorAsync({
+                                actor_id: actors[0].id,
+                                rezka_movie_id: dbMovie.id,
+                                is_actor: false,
+                                is_director: false,
+                                is_writer: true,
+                            });
+                            if (relationError) {
+                                logs.push('add writer relation error ' + relationError);
+                            }
+                        }
+                    });
+
+                    const directors = json.Director.split(',');
+                    await oneByOneAsync(directors, async (director) => {
+                        const [, postError] = await dbService.actor.postActorAsync({
+                            name: director.trim(),
+                            photo_url: null as unknown as string,
+                        });
+                        if (postError) {
+                            logs.push(`post director error ${dbMovie.id} error=${postError}`);
+                        } else {
+                            logs.push('post director success', director);
+                        }
+
+                        const [actors] = await dbService.actor.getActorListAllAsync({ actor_name: director.trim() });
+                        if (actors?.length) {
+                            //todo fix
+                            const [, relationError] = await dbService.rezkaMovieActor.postRezkaMovieActorAsync({
+                                actor_id: actors[0].id,
+                                rezka_movie_id: dbMovie.id,
+                                is_actor: false,
+                                is_director: true,
+                                is_writer: false,
+                            });
+                            if (relationError) {
+                                logs.push('add director relation error ' + relationError);
+                            }
+                        }
+                    });
+                }
+            },
+            { timeout: 0 },
+        );
+    }
+
     if (props.updateRezkaTranslations) {
         const [dbMovies = []] = await dbService.rezkaMovie.getRezkaMoviesAllAsync({});
 
         const [allDbTranslations] = await dbService.rezkaMovieTranslation.getRezkaMovieTranslationAllAsync({});
 
-        const filtered = dbMovies
-            .filter((dbMovie) => dbMovie.rezka_imdb_id)
-            .filter((dbMovie) => !!allDbTranslations?.filter((tr) => tr.rezka_movie_id === dbMovie.id && tr.translation_id))
+        const filtered = dbMovies.filter((dbMovie) => dbMovie.rezka_imdb_id);
+        // .filter((dbMovie) => !!allDbTranslations?.filter((tr) => tr.rezka_movie_id === dbMovie.id && tr.translation_id));
         logs.push('download streams for ' + filtered.length);
         // imdb id
         await oneByOneAsync(

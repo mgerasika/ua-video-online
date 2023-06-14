@@ -17,7 +17,7 @@ interface IProps {
   allGenres: string[]
   allYears: string[]
 }
-export const ALL_LANG = ['audio original', 'audio ukrainian']
+export const ALL_LANG = ['audio original', 'audio ukrainian', 'kubik v kube']
 export const MoviesContainer = ({
   allMovies,
   allGenres,
@@ -60,7 +60,10 @@ export const MoviesContainer = ({
         }
         if (movie.has_ua && filter.languages.includes(ALL_LANG[1])) {
           return true
-        }
+		}
+		if (movie.has_kubik && filter.languages.includes(ALL_LANG[2])) {
+			return true
+		  }
       })
     }
 

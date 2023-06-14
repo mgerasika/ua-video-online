@@ -6,6 +6,7 @@ import { IRezkaMovieResponse } from '../rezka-movie/get-rezka-movie-list.control
 import { IImdbResponse } from '../imdb/get-imdb-list.controller';
 import { ITranslationResponse } from '../translation/get-translation-list.controller';
 import { ERezkaVideoType } from '@server/dto/rezka-movie.dto';
+import { IImdbResultResponse } from '../imdb/search-imdb.controller';
 
 export interface IGroupMovieResponse {
     rate: number;
@@ -16,23 +17,25 @@ export interface IGroupMovieResponse {
     imdb_id: string;
     has_ua?: boolean;
     has_en?: boolean;
+    has_kubik?: boolean;
     poster: string;
     video_type: ERezkaVideoType;
 }
 
-interface IRequest extends IExpressRequest {}
+interface IRequest extends IExpressRequest {
+}
 
 interface IResponse extends IExpressResponse<IGroupMovieResponse[], void> {}
 
 app.get(API_URL.api.groupMovie.toString(), async (req: IRequest, res: IResponse) => {
-    const [data, error] = await groupSearchMoviesAsync();
+    const [data, error] = await groupMovieListAsync();
     if (error) {
         return res.status(400).send('error' + error);
     }
     return res.send(data);
 });
 
-export const groupSearchMoviesAsync = async (): Promise<IQueryReturn<IGroupMovieResponse[]>> => {
+export const groupMovieListAsync = async (): Promise<IQueryReturn<IGroupMovieResponse[]>> => {
     const [allRelations, allRelationsError] = await dbService.rezkaMovieTranslation.getRezkaMovieTranslationAllAsync({});
     if (allRelationsError) {
         return [, allRelationsError];
@@ -57,18 +60,19 @@ export const groupSearchMoviesAsync = async (): Promise<IQueryReturn<IGroupMovie
     console.log('imdbs', imdbs?.length);
     const data = movies
         ?.filter((movie) => movie)
-        .filter((movie) => !!allRelations?.find((relation) => relation.rezka_movie_id === movie.id))
+        .filter((movie) => allRelations?.some((relation) => relation.rezka_movie_id === movie.id))
         .map((movie): IGroupMovieResponse | undefined => {
             const imdb = imdbs?.find((i) => i.id === movie.rezka_imdb_id);
             if (!imdb) {
                 return undefined;
             }
+
             const relations = allRelations?.filter((tr) => tr.rezka_movie_id === movie.id);
 
             const translations = allTranslation?.filter((translation) =>
                 relations?.some((s) => s.translation_id === translation.id),
             );
-            const imdbJson = JSON.parse(imdb.json);
+            const imdbJson: IImdbResultResponse = JSON.parse(imdb.json);
             return {
                 genre: imdbJson.Genre,
                 imdb_id: imdb.id,
@@ -78,6 +82,7 @@ export const groupSearchMoviesAsync = async (): Promise<IQueryReturn<IGroupMovie
                 year: +imdb.year,
                 has_en: translations?.some((t) => t.label.toLowerCase().includes('ориг')),
                 has_ua: translations?.some((t) => t.label.toLowerCase().includes('укр')),
+                has_kubik: translations?.some((t) => t.label.toLowerCase().includes('кубик')),
                 poster: imdb.poster,
                 video_type: movie.video_type,
             };

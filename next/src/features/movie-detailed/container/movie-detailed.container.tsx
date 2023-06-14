@@ -2,11 +2,13 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import 'twin.macro'
 import Link from 'next/link'
 import {
+	IActorResponse,
   IGroupMovieDetailedResponse,
   IGroupMovieResponse,
   IImdbResponse,
   IResolutionItem,
   IRezkaInfoByIdResponse,
+  IRezkaMovieActorDto,
   IRezkaMovieResponse,
   ITranslationResponse,
   api,
@@ -22,11 +24,13 @@ import axios from 'axios'
 
 interface IProps {
   imdb_info: IImdbResponse | undefined
-  rezka_movie_href: string | undefined
+	rezka_movie_href: string | undefined
+	actors: IRezkaMovieActorDto[] | undefined
 }
 export const MovieDetailedContainer = ({
   imdb_info,
-  rezka_movie_href,
+	rezka_movie_href,
+  actors,
 }: IProps): JSX.Element => {
   const [encodeUrls, setEncodeUrls] = useState<IVideoUrl[]>()
   const {
@@ -98,6 +102,7 @@ export const MovieDetailedContainer = ({
   return (
     <Loading loading={parseCypressLoading || rezkaDetailsLoading}>
       <MovieDetailed
+	  actors={actors}
         onReloadV1={handleReloadV1}
         onReloadV2={handleReloadV2}
         video_urls={encodeUrls || []}

@@ -34,7 +34,8 @@ export const getTranslationAllAsync = async (query: IRequest['query']): Promise<
         });
     }
     return typeOrmAsync<TranslationDto[]>(async (client) => {
-        const qb = client.getRepository(TranslationDto).createQueryBuilder('translation').select('*');
+		const qb = client.getRepository(TranslationDto).createQueryBuilder('translation').select('*');
+		qb.cache(true);
         return [await qb.getRawMany()];
     });
 };

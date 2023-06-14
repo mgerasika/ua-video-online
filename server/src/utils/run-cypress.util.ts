@@ -14,9 +14,9 @@ export async function runCypressAsync<T>({ href, spec }: IProps): Promise<IQuery
                     CYPRESS_NO_COMMAND_LOG: 1,
                     URL: href,
                 },
-                browser: 'chrome',
                 configFile: 'cypress.json',
                 quiet: true,
+                headed: false, //false not worked, fixed something
                 spec: spec,
             })
             .then((results: any) => {

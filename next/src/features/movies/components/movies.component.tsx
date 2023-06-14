@@ -64,10 +64,10 @@ export const MoviesComponent = ({
       />
       <div tw="text-left text-white pb-1 px-1">
         {filteredCount === allCount ? (
-          <> {allCount}</>
+          <>total - {allCount}</>
         ) : (
           <>
-            {filteredCount} / {allCount}
+           found - {filteredCount} / total - {allCount}
           </>
         )}
       </div>

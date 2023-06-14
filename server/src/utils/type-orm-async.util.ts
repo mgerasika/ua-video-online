@@ -5,6 +5,8 @@ import { IQueryReturn } from './to-query.util';
 import { RezkaMovieDto } from '@server/dto/rezka-movie.dto';
 import { TranslationDto } from '@server/dto/translation.dto';
 import { RezkaMovieTranslationDto } from '@server/dto/rezka_movie_translation.dto';
+import { ActorDto } from '@server/dto/actor.dto';
+import { RezkaMovieActorDto } from '@server/dto/rezka_movie_actor.dto';
 
 const IS_DEBUG = ENV.node_env === 'development';
 
@@ -20,7 +22,7 @@ const getDataSource = (): DataSource => {
         database: ENV.database,
         password: IS_DEBUG ? ENV.owner_password : ENV.password,
         port: ENV.port,
-        entities: [ImdbDto, RezkaMovieDto, TranslationDto, RezkaMovieTranslationDto],
+        entities: [ImdbDto, RezkaMovieDto, TranslationDto, RezkaMovieTranslationDto, ActorDto, RezkaMovieActorDto],
         synchronize: true,
         poolSize: 10,
         logging: false,

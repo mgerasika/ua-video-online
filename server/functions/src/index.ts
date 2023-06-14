@@ -11,8 +11,6 @@ expressApp.get('/echo', (req, res) => {
     res.send(JSON.stringify(dbService, null, 2));
 });
 
-expressApp.get('/', (req, res) => {
-    res.send('API_URL = ' + JSON.stringify(API_URL, null, 2));
-});
+
 // Define your Express routes here
 export const app = functions.https.onRequest(expressApp);

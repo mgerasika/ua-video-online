@@ -7,5 +7,5 @@ export const ENV = {
     password: process.env.DB_PASSWORD,
     node_env: process.env.NODE_ENV,
     port: 5432,
-    cdn: 'https://ua-video-torrent-cdn.web.app/',
+    cdn: 'https://ua-video-online-cdn.web.app/',
 };

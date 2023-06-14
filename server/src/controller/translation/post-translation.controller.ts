@@ -23,9 +23,6 @@ app.post(API_URL.api.translation.toString(), async (req: IRequest, res: IRespons
 });
 
 export const postTranslationAsync = async (data: TranslationDto): Promise<IQueryReturn<TranslationDto>> => {
-    if (!data.id || data.id.length < 3) {
-        return [undefined, 'Id can not be empty string or id too short id = ' + data.id];
-    }
     return typeOrmAsync<TranslationDto>(async (client) => {
         return [await client.getRepository(TranslationDto).save(data)];
     });

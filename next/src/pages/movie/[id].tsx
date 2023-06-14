@@ -1,7 +1,9 @@
 import {
+  IActorResponse,
   IGroupMovieResponse,
   IImdbResponse,
   IRezkaInfoByIdResponse,
+  IRezkaMovieActorDto,
   IRezkaMovieResponse,
   ITranslationResponse,
   api,
@@ -15,10 +17,12 @@ import { IS_BUILD_TIME } from '../../constants/is-build-time.constant'
 interface IProps {
   imdb_info: IImdbResponse | undefined
   rezka_movie_href: string | undefined
+  actors: IRezkaMovieActorDto[] | undefined
 }
-export default function Movie({ imdb_info, rezka_movie_href }: IProps) {
+export default function Movie({ imdb_info, rezka_movie_href, actors }: IProps) {
   return (
     <MovieDetailedContainer
+      actors={actors}
       rezka_movie_href={rezka_movie_href}
       imdb_info={imdb_info}
     />
@@ -38,6 +42,7 @@ export async function getStaticProps({
     props: {
       rezka_movie_href: groupMovie?.rezka_movie_href,
       imdb_info: groupMovie?.imdb_info,
+      actors: groupMovie?.actors || [],
     },
   }
 }

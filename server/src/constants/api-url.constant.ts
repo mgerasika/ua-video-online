@@ -11,6 +11,12 @@ interface IApiUrl {
         groupMovie: {
             id: (id?: string) => IUrlItem;
         };
+        groupMovieV2: {
+            id: (id?: string) => IUrlItem;
+        };
+        actor: {
+            id: (id?: string) => IUrlItem;
+        };
         rezkaMovie: {
             searchRezkaWithoutStream: IUrlItem;
 
@@ -19,12 +25,19 @@ interface IApiUrl {
         rezkaMovieTranslation: IUrlItem;
         stream: {
             id: (id?: string) => IUrlItem;
+		};
+		cdn: {
+            id: (id?: string) => {
+                hasFile: IUrlItem;
+            };
+            upload: IUrlItem;
         };
         translation: {
             id: (id?: string) => IUrlItem;
         };
         tools: {
             setup: IUrlItem;
+            image_search: IUrlItem;
         };
 
         parser: {
@@ -52,6 +65,12 @@ export const API_URL = createUrls<IApiUrl>({
         rezkaMovieTranslation: EMPTY_URL_ITEM,
         stream: {
             id: (id?: string) => EMPTY_URL_ITEM,
+		},
+		cdn: {
+            id: (id?: string) => ({
+                hasFile: EMPTY_URL_ITEM,
+            }),
+            upload: EMPTY_URL_ITEM,
         },
         translation: {
             id: (id?: string) => EMPTY_URL_ITEM,
@@ -59,8 +78,15 @@ export const API_URL = createUrls<IApiUrl>({
         groupMovie: {
             id: (id?: string) => EMPTY_URL_ITEM,
         },
+        groupMovieV2: {
+            id: (id?: string) => EMPTY_URL_ITEM,
+        },
+        actor: {
+            id: (id?: string) => EMPTY_URL_ITEM,
+        },
         tools: {
             setup: EMPTY_URL_ITEM,
+            image_search: EMPTY_URL_ITEM,
         },
         parser: {
             rezkaAll: EMPTY_URL_ITEM,

@@ -1,7 +1,9 @@
-import { groupSearchMoviesAsync } from './get-group-search-movie-list.controller';
-import { groupSearchMovieByIdAsync } from './get-group-search-movie.controller';
+import { groupMovieListAsync } from './get-group-movie-list.controller';
+import { groupMovieByIdAsync } from './get-group-movie-detailed.controller';
+import { groupMovieListV2Async } from './get-group-movie-list-v2.controller';
 
 export const groupMovie = {
-    groupSearchMoviesAsync,
-    groupSearchMovieByIdAsync,
+    groupMovieListAsync,
+    groupMovieByIdAsync,
+    groupMovieListV2Async,
 };

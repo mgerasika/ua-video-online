@@ -6,6 +6,6 @@ const withTwin = require('./withTwin.js');
 module.exports = withTwin({
 	reactStrictMode: true,
 	experimental: {
-		largePageDataBytes: 512 * 1024,
+		largePageDataBytes: 10* 1024 * 1024,
 	}
 });

@@ -31,7 +31,14 @@ export const MovieCard = ({ movie }: IProps): JSX.Element => {
 
         <div tw="bottom-0 left-0 mt-1">
           <div tw="text-white [font-size: 18px] pt-2 text-left font-light pb-1">
-            {movie.name} / {movie.ua_name} ({movie.year})
+            {movie.name !== movie.ua_name ? (
+              <>
+                {movie.name} / {movie.ua_name}
+              </>
+            ) : (
+              movie.name
+            )}{' '}
+            ({movie.year})
           </div>
           {/* {movie.name && (
             <div tw="text-white [font-size: 16px] font-light text-left">
@@ -52,6 +59,9 @@ export const MovieCard = ({ movie }: IProps): JSX.Element => {
           )}
           {movie.has_ua && (
             <StatusTag tw="mr-2 my-1 float-left">{ALL_LANG[1]}</StatusTag>
+          )}
+          {movie.has_kubik && (
+            <StatusTag tw="mr-2 my-1 float-left">{ALL_LANG[2]}</StatusTag>
           )}
         </div>
       </div>

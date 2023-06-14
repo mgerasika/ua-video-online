@@ -7,7 +7,8 @@ import {
 describe('get-rezka-stream', () => {
     it('get-stream', () => {
         const url =
-            Cypress.env('URL') ||
+			Cypress.env('URL') ||
+			'https://rezka.ag/films/fiction/2738-v-znachit-vendetta-2006.html'
             'https://rezka.ag/cartoons/fiction/17702-lego-supergeroi-dc-comics-liga-spravedlivosti-ataka-legiona-gibeli-2015.html' ||
             'https://rezka.ag/cartoons/fantasy/25701-tayna-koko-2017.html';
         cy.log('ENV', url);
@@ -88,34 +89,40 @@ const getStreams = async ({ url, callback }: { url: string; callback: (outputIte
                             translations,
                         });
                     } else {
-                        cy.get('#translators-list').should('be.visible').find('li').last().click();
                         cy.get('#translators-list')
                             .should('be.visible')
                             .find('li')
-                            .each((li, index) => {
-                                cy.wrap(li).click();
-                                cy.wait('@get_cdn_series').then((intercept) => {
-                                    const obj = JSON.parse(intercept?.response?.body);
-                                    const streamStr = (wnd as any).o.FGeRtNzK(obj.url);
-                                    translations.push({
-                                        resolutions: streamStringToObject(streamStr),
-                                        translation: li.text().trim(),
-                                        data_translator_id: li.attr('data-translator_id') || '',
-                                        data_ads: li.attr('data-ads') || '',
-                                        data_camrip: li.attr('data-camrip') || '',
-                                        data_director: li.attr('data-director') || '',
-                                        encoded_video_url: obj.url,
-                                    });
-                                });
-                            })
+                            .last()
+                            .click()
                             .then(() => {
-                                callback({
-                                    imdb_rezka_relative_link: imdb_id,
-                                    url,
-                                    en_name: enName,
-                                    year,
-                                    translations,
-                                });
+                                cy.get('#translators-list')
+                                    .should('be.visible')
+                                    .find('li')
+                                    .each((li, index) => {
+                                        cy.wrap(li).click();
+                                        cy.wait('@get_cdn_series').then((intercept) => {
+                                            const obj = JSON.parse(intercept?.response?.body);
+                                            const streamStr = (wnd as any).o.FGeRtNzK(obj.url);
+                                            translations.push({
+                                                resolutions: streamStringToObject(streamStr),
+                                                translation: li.text().trim(),
+                                                data_translator_id: li.attr('data-translator_id') || '',
+                                                data_ads: li.attr('data-ads') || '',
+                                                data_camrip: li.attr('data-camrip') || '',
+                                                data_director: li.attr('data-director') || '',
+                                                encoded_video_url: obj.url,
+                                            });
+                                        });
+                                    })
+                                    .then(() => {
+                                        callback({
+                                            imdb_rezka_relative_link: imdb_id,
+                                            url,
+                                            en_name: enName,
+                                            year,
+                                            translations,
+                                        });
+                                    });
                             });
                     }
                 });

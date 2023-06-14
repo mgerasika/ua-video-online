@@ -23,21 +23,23 @@ export enum ERezkaVideoType {
   film = 'film',
   cartoon = 'cartoon',
 }
-export interface IGroupMovieResponse {
-  rate: number
-  year: number
-  genre: string
+export interface IActorResponse {
+  id: string
   name: string
-  ua_name: string
-  imdb_id: string
-  has_ua?: boolean
-  has_en?: boolean
-  poster: string
-  video_type: ERezkaVideoType
+  photo_url: string
+}
+export interface IPostActorBody {
+  name: string
+  photo_url: string
+}
+export interface IPutActorBody {
+  name: string
+  photo_url: string
 }
 export interface IGroupMovieDetailedResponse {
   imdb_info: IImdbResponse
   rezka_movie_href: string
+  actors: IRezkaMovieActorDto[]
 }
 export interface IImdbResponse {
   id: string
@@ -79,8 +81,27 @@ export interface IImdbRating {
   Source: string
   Value: string
 }
-export interface IPostImdbBody {
-  id: string
+export interface IRezkaMovieActorDto {
+  rezka_movie_id: string
+  actor_id: string
+  is_director: boolean
+  is_actor: boolean
+  is_writer: boolean
+}
+export interface IGroupMovieResponse {
+  rate: number
+  year: number
+  genre: string
+  name: string
+  ua_name: string
+  imdb_id: string
+  has_ua?: boolean
+  has_en?: boolean
+  has_kubik?: boolean
+  poster: string
+  video_type: ERezkaVideoType
+}
+export interface IPutImdbBody {
   en_name: string
   ua_name?: string
   poster: string
@@ -89,7 +110,8 @@ export interface IPostImdbBody {
   jsonObj: IImdbResultResponse
   json: string
 }
-export interface IPutImdbBody {
+export interface IPostImdbBody {
+  id: string
   en_name: string
   ua_name?: string
   poster: string
@@ -139,14 +161,6 @@ export interface IRezkaInfoResponse {
   href: string
   year: number
 }
-export interface IRezkaDetailsBody {
-  imdb_id: string
-}
-export interface IRezkaInfoByIdResponse {
-  translation_id: string
-  translation_name: string
-  cdn_encoded_video_url: string
-}
 export interface IRezkaMovieResponse {
   id: string
   en_name: string
@@ -154,6 +168,14 @@ export interface IRezkaMovieResponse {
   href: string
   video_type: ERezkaVideoType
   rezka_imdb_id: string
+}
+export interface IRezkaDetailsBody {
+  imdb_id: string
+}
+export interface IRezkaInfoByIdResponse {
+  translation_id: string
+  translation_name: string
+  cdn_encoded_video_url: string
 }
 export interface IPostRezkaMovieBody {
   en_name: string
@@ -177,9 +199,9 @@ export interface ISearchRezkaMovieResponse {
 export interface IRezkaMovieTranslationResponse {
   rezka_movie_id: string
   translation_id: string
-  data_ads: string
-  data_camrip: string
-  data_director: string
+  data_ads: number
+  data_camrip: number
+  data_director: number
 }
 export interface ISetupBody {
   searchImdb: boolean
@@ -188,29 +210,31 @@ export interface ISetupBody {
   updateRezkaFilm: boolean
   updateRezkaImdbId: boolean
   updateRezkaTranslations: boolean
+  addActorsFromMovieDb: boolean
+  uploadActorPhotoToCdn: boolean
 }
 export interface ITranslationResponse {
   id: string
-  data_ads: string
-  data_camrip: string
-  data_director: string
   label: string
 }
 export interface IPostTranslationBody {
   id: string
-  data_ads: string
-  data_camrip: string
-  data_director: string
   label: string
 }
 export interface IPutTranslationBody {
-  data_ads: string
-  data_camrip: string
-  data_director: string
   label: string
 }
-export type TGroupMovieGetError = '' | 'undefined'
+export type TActorIdGetError = '' | 'undefined'
+export type TActorIdDeleteError = '' | 'undefined'
+export type TActorIdPutError = '' | 'undefined'
+export type TActorGetError = '' | 'undefined'
+export type TActorPostError = '' | 'undefined'
+export type TCdnIdGetError = '' | 'undefined'
+export type TCdnIdHasFileGetError = '' | 'undefined'
+export type TCdnUploadPostError = '' | 'undefined'
 export type TGroupMovieIdGetError = '' | 'undefined'
+export type TGroupMovieV2GetError = '' | 'undefined'
+export type TGroupMovieGetError = '' | 'undefined'
 export type TImdbIdDeleteError = '' | 'undefined'
 export type TImdbIdGetError = '' | 'undefined'
 export type TImdbIdPutError = '' | 'undefined'
@@ -221,23 +245,33 @@ export type TImdbSearchUaNamePostError = '' | 'undefined'
 export type TParserCypressImdbPostError = '' | 'undefined'
 export type TParserCypressStreamsPostError = '' | 'undefined'
 export type TParserRezkaAllPostError = '' | 'undefined'
+export type TRezkaMovieGetError = '' | 'undefined'
+export type TRezkaMoviePostError = '' | 'undefined'
 export type TParserRezkaDetailsPostError = '' | 'undefined'
 export type TRezkaMovieIdDeleteError = '' | 'undefined'
 export type TRezkaMovieIdGetError = '' | 'undefined'
 export type TRezkaMovieIdPutError = '' | 'undefined'
-export type TRezkaMovieGetError = '' | 'undefined'
-export type TRezkaMoviePostError = '' | 'undefined'
 export type TRezkaMovieSearchRezkaWithoutStreamGetError = '' | 'undefined'
 export type TRezkaMovieTranslationGetError = '' | 'undefined'
+export type TToolsImageSearchPostError = '' | 'undefined'
 export type TToolsSetupPostError = '' | 'undefined'
 export type TTranslationIdDeleteError = '' | 'undefined'
-export type TTranslationIdPutError = '' | 'undefined'
 export type TTranslationIdGetError = '' | 'undefined'
+export type TTranslationIdPutError = '' | 'undefined'
 export type TTranslationGetError = '' | 'undefined'
 export type TTranslationPostError = '' | 'undefined'
 export type TPartialErrorCodes =
-  | TGroupMovieGetError
+  | TActorIdGetError
+  | TActorIdDeleteError
+  | TActorIdPutError
+  | TActorGetError
+  | TActorPostError
+  | TCdnIdGetError
+  | TCdnIdHasFileGetError
+  | TCdnUploadPostError
   | TGroupMovieIdGetError
+  | TGroupMovieV2GetError
+  | TGroupMovieGetError
   | TImdbIdDeleteError
   | TImdbIdGetError
   | TImdbIdPutError
@@ -248,27 +282,80 @@ export type TPartialErrorCodes =
   | TParserCypressImdbPostError
   | TParserCypressStreamsPostError
   | TParserRezkaAllPostError
+  | TRezkaMovieGetError
+  | TRezkaMoviePostError
   | TParserRezkaDetailsPostError
   | TRezkaMovieIdDeleteError
   | TRezkaMovieIdGetError
   | TRezkaMovieIdPutError
-  | TRezkaMovieGetError
-  | TRezkaMoviePostError
   | TRezkaMovieSearchRezkaWithoutStreamGetError
   | TRezkaMovieTranslationGetError
+  | TToolsImageSearchPostError
   | TToolsSetupPostError
   | TTranslationIdDeleteError
-  | TTranslationIdPutError
   | TTranslationIdGetError
+  | TTranslationIdPutError
   | TTranslationGetError
   | TTranslationPostError
   | ''
 
 export const createApiRequest = (rs: IRequestService) => ({
-  groupMovieGet: (): CustomPromise<
-    CustomAxiosResponse<Array<IGroupMovieResponse>, TGroupMovieGetError>,
-    IBEError<TGroupMovieGetError>
-  > => rs.get(formatUrl(API_SERVER_URL + `api/group-movie/`)),
+  actorIdGet: (
+    id: string,
+  ): CustomPromise<
+    CustomAxiosResponse<IActorResponse, TActorIdGetError>,
+    IBEError<TActorIdGetError>
+  > => rs.get(formatUrl(API_SERVER_URL + `api/actor/${id}`)),
+
+  actorIdDelete: (
+    id: string,
+  ): CustomPromise<
+    CustomAxiosResponse<Array<IActorResponse>, TActorIdDeleteError>,
+    IBEError<TActorIdDeleteError>
+  > => rs.delete(formatUrl(API_SERVER_URL + `api/actor/${id}`)),
+
+  actorIdPut: (
+    id: string,
+    body: IPutActorBody,
+  ): CustomPromise<
+    CustomAxiosResponse<IActorResponse, TActorIdPutError>,
+    IBEError<TActorIdPutError>
+  > => rs.put(formatUrl(API_SERVER_URL + `api/actor/${id}`), body),
+
+  actorGet: (
+    query:
+      | { actor_name?: string; movie_id?: string; imdb_id?: string }
+      | undefined,
+  ): CustomPromise<
+    CustomAxiosResponse<Array<IActorResponse>, TActorGetError>,
+    IBEError<TActorGetError>
+  > => rs.get(formatUrl(API_SERVER_URL + `api/actor/`, query)),
+
+  actorPost: (
+    body: IPostActorBody,
+  ): CustomPromise<
+    CustomAxiosResponse<Array<IActorResponse>, TActorPostError>,
+    IBEError<TActorPostError>
+  > => rs.post(formatUrl(API_SERVER_URL + `api/actor/`), body),
+
+  cdnIdGet: (
+    id: string,
+  ): CustomPromise<
+    CustomAxiosResponse<Blob, TCdnIdGetError>,
+    IBEError<TCdnIdGetError>
+  > => rs.get(formatUrl(API_SERVER_URL + `api/cdn/${id}`)),
+
+  cdnIdHasFileGet: (
+    id: string,
+  ): CustomPromise<
+    CustomAxiosResponse<void, TCdnIdHasFileGetError>,
+    IBEError<TCdnIdHasFileGetError>
+  > => rs.get(formatUrl(API_SERVER_URL + `api/cdn/${id}hasFile/`)),
+
+  cdnUploadPost: (): CustomPromise<
+    CustomAxiosResponse<void, TCdnUploadPostError>,
+    IBEError<TCdnUploadPostError>
+  > => rs.post(formatUrl(API_SERVER_URL + `api/cdn/upload/`)),
 
   groupMovieIdGet: (
     id: string,
@@ -276,6 +363,20 @@ export const createApiRequest = (rs: IRequestService) => ({
     CustomAxiosResponse<IGroupMovieDetailedResponse, TGroupMovieIdGetError>,
     IBEError<TGroupMovieIdGetError>
   > => rs.get(formatUrl(API_SERVER_URL + `api/group-movie/${id}`)),
+
+  groupMovieV2Get: (
+    query:
+      | { imdb_id?: string; actor_id?: string; actor_name?: string }
+      | undefined,
+  ): CustomPromise<
+    CustomAxiosResponse<Array<IGroupMovieResponse>, TGroupMovieV2GetError>,
+    IBEError<TGroupMovieV2GetError>
+  > => rs.get(formatUrl(API_SERVER_URL + `api/group-movie-v2/`, query)),
+
+  groupMovieGet: (): CustomPromise<
+    CustomAxiosResponse<Array<IGroupMovieResponse>, TGroupMovieGetError>,
+    IBEError<TGroupMovieGetError>
+  > => rs.get(formatUrl(API_SERVER_URL + `api/group-movie/`)),
 
   imdbIdDelete: (
     id: string,
@@ -353,6 +454,20 @@ export const createApiRequest = (rs: IRequestService) => ({
     IBEError<TParserRezkaAllPostError>
   > => rs.post(formatUrl(API_SERVER_URL + `api/parser/rezka-all/`, query)),
 
+  rezkaMovieGet: (
+    query: { imdb_id?: string } | undefined,
+  ): CustomPromise<
+    CustomAxiosResponse<Array<IRezkaMovieResponse>, TRezkaMovieGetError>,
+    IBEError<TRezkaMovieGetError>
+  > => rs.get(formatUrl(API_SERVER_URL + `api/rezka-movie/`, query)),
+
+  rezkaMoviePost: (
+    body: IPostRezkaMovieBody,
+  ): CustomPromise<
+    CustomAxiosResponse<Array<IRezkaMovieResponse>, TRezkaMoviePostError>,
+    IBEError<TRezkaMoviePostError>
+  > => rs.post(formatUrl(API_SERVER_URL + `api/rezka-movie/`), body),
+
   parserRezkaDetailsPost: (
     body: IRezkaDetailsBody,
   ): CustomPromise<
@@ -385,20 +500,6 @@ export const createApiRequest = (rs: IRequestService) => ({
     IBEError<TRezkaMovieIdPutError>
   > => rs.put(formatUrl(API_SERVER_URL + `api/rezka-movie/${id}`), body),
 
-  rezkaMovieGet: (
-    query: { imdb_id?: string } | undefined,
-  ): CustomPromise<
-    CustomAxiosResponse<Array<IRezkaMovieResponse>, TRezkaMovieGetError>,
-    IBEError<TRezkaMovieGetError>
-  > => rs.get(formatUrl(API_SERVER_URL + `api/rezka-movie/`, query)),
-
-  rezkaMoviePost: (
-    body: IPostRezkaMovieBody,
-  ): CustomPromise<
-    CustomAxiosResponse<Array<IRezkaMovieResponse>, TRezkaMoviePostError>,
-    IBEError<TRezkaMoviePostError>
-  > => rs.post(formatUrl(API_SERVER_URL + `api/rezka-movie/`), body),
-
   rezkaMovieSearchRezkaWithoutStreamGet: (
     query: { page?: number; limit?: number } | undefined,
   ): CustomPromise<
@@ -426,6 +527,11 @@ export const createApiRequest = (rs: IRequestService) => ({
   > =>
     rs.get(formatUrl(API_SERVER_URL + `api/rezka-movie-translation/`, query)),
 
+  toolsImageSearchPost: (): CustomPromise<
+    CustomAxiosResponse<string[], TToolsImageSearchPostError>,
+    IBEError<TToolsImageSearchPostError>
+  > => rs.post(formatUrl(API_SERVER_URL + `api/tools/image_search/`)),
+
   toolsSetupPost: (
     body: ISetupBody,
   ): CustomPromise<
@@ -440,6 +546,13 @@ export const createApiRequest = (rs: IRequestService) => ({
     IBEError<TTranslationIdDeleteError>
   > => rs.delete(formatUrl(API_SERVER_URL + `api/translation/${id}`)),
 
+  translationIdGet: (
+    id: string,
+  ): CustomPromise<
+    CustomAxiosResponse<ITranslationResponse, TTranslationIdGetError>,
+    IBEError<TTranslationIdGetError>
+  > => rs.get(formatUrl(API_SERVER_URL + `api/translation/${id}`)),
+
   translationIdPut: (
     id: string,
     body: IPutTranslationBody,
@@ -447,13 +560,6 @@ export const createApiRequest = (rs: IRequestService) => ({
     CustomAxiosResponse<ITranslationResponse, TTranslationIdPutError>,
     IBEError<TTranslationIdPutError>
   > => rs.put(formatUrl(API_SERVER_URL + `api/translation/${id}`), body),
-
-  translationIdGet: (
-    id: string,
-  ): CustomPromise<
-    CustomAxiosResponse<ITranslationResponse, TTranslationIdGetError>,
-    IBEError<TTranslationIdGetError>
-  > => rs.get(formatUrl(API_SERVER_URL + `api/translation/${id}`)),
 
   translationGet: (
     query: { imdb_id?: string } | undefined,
@@ -471,8 +577,17 @@ export const createApiRequest = (rs: IRequestService) => ({
 })
 
 const URL = {
-  groupMovieGet: (): string => `api/group-movie/`,
+  actorIdGet: (id: string): string => `api/actor/${id}`,
+  actorIdDelete: (id: string): string => `api/actor/${id}`,
+  actorIdPut: (id: string): string => `api/actor/${id}`,
+  actorGet: (): string => `api/actor/`,
+  actorPost: (): string => `api/actor/`,
+  cdnIdGet: (id: string): string => `api/cdn/${id}`,
+  cdnIdHasFileGet: (id: string): string => `api/cdn/${id}hasFile/`,
+  cdnUploadPost: (): string => `api/cdn/upload/`,
   groupMovieIdGet: (id: string): string => `api/group-movie/${id}`,
+  groupMovieV2Get: (): string => `api/group-movie-v2/`,
+  groupMovieGet: (): string => `api/group-movie/`,
   imdbIdDelete: (id: string): string => `api/imdb/${id}`,
   imdbIdGet: (id: string): string => `api/imdb/${id}`,
   imdbIdPut: (id: string): string => `api/imdb/${id}`,
@@ -483,19 +598,20 @@ const URL = {
   parserCypressImdbPost: (): string => `api/parser/cypress-imdb/`,
   parserCypressStreamsPost: (): string => `api/parser/cypress-streams/`,
   parserRezkaAllPost: (): string => `api/parser/rezka-all/`,
+  rezkaMovieGet: (): string => `api/rezka-movie/`,
+  rezkaMoviePost: (): string => `api/rezka-movie/`,
   parserRezkaDetailsPost: (): string => `api/parser/rezka-details/`,
   rezkaMovieIdDelete: (id: string): string => `api/rezka-movie/${id}`,
   rezkaMovieIdGet: (id: string): string => `api/rezka-movie/${id}`,
   rezkaMovieIdPut: (id: string): string => `api/rezka-movie/${id}`,
-  rezkaMovieGet: (): string => `api/rezka-movie/`,
-  rezkaMoviePost: (): string => `api/rezka-movie/`,
   rezkaMovieSearchRezkaWithoutStreamGet: (): string =>
     `api/rezka-movie/search-rezka-without-stream/`,
   rezkaMovieTranslationGet: (): string => `api/rezka-movie-translation/`,
+  toolsImageSearchPost: (): string => `api/tools/image_search/`,
   toolsSetupPost: (): string => `api/tools/setup/`,
   translationIdDelete: (id: string): string => `api/translation/${id}`,
-  translationIdPut: (id: string): string => `api/translation/${id}`,
   translationIdGet: (id: string): string => `api/translation/${id}`,
+  translationIdPut: (id: string): string => `api/translation/${id}`,
   translationGet: (): string => `api/translation/`,
   translationPost: (): string => `api/translation/`,
 }

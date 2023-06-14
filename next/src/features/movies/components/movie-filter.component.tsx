@@ -6,6 +6,7 @@ import { ERezkaVideoType } from '../../../api/api.generated'
 import { SelectButtonList } from '../../../general-ui/select-button-list/select-button-list.component'
 import { ALL_LANG } from '../containers/movies.container'
 import { useIsMounted } from '../../../use-is-mounted.hook'
+import { SearchInput } from '../../../general-ui/search-input/search-input.component'
 
 interface IProps {
   allGenres: string[]
@@ -19,11 +20,8 @@ export const MovieFilter = ({
   allYears,
   onFilterChange,
 }: IProps) => {
-  const [text, setText] = useState(filter.searchText)
 
-  useEffect(() => {
-    setText(filter.searchText)
-  }, [filter.searchText])
+ 
 
   const isMounted = useIsMounted()
   const handleGenreChange = useCallback(
@@ -66,36 +64,23 @@ export const MovieFilter = ({
     [filter, onFilterChange],
   )
 
-  const intervalRef = useRef<any>()
   const handleSearchTextChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setText(e.target.value)
-
-      if (intervalRef.current) {
-        window.clearTimeout(intervalRef.current)
-      }
-      intervalRef.current = setTimeout(() => {
-        if (isMounted) {
-          onFilterChange({
-            ...filter,
-            searchText: e.target.value,
-          })
-        }
-      }, 800)
+    (text: string) => {
+      onFilterChange({
+        ...filter,
+        searchText: text,
+      })
     },
     [filter, onFilterChange],
   )
   return (
     <div tw="text-white">
-      <div tw="mx-1 my-2">
-        <input
-          placeholder="enter search text here"
-          type="text"
-          tw="[border-radius: 6px] w-full text-black outline-none px-2 py-1"
-          value={text}
-          onChange={handleSearchTextChange}
-        />
-      </div>
+		  <SearchInput
+			  tw="mx-1 mb-2"
+        text={filter.searchText}
+        onTextChange={handleSearchTextChange}
+      />
+
       <SelectButtonList
         showAll={false}
         allItems={allYears}
