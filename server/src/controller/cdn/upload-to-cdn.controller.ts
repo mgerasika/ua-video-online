@@ -52,7 +52,7 @@ export const uploadFileToCDNAsync = async ({
             if (err) {
                 return reject(('write to file error' + err) as unknown as string);
             }
-            return resolve(ENV.cdn + fileUrl);
+            return resolve(ENV.cdn + fileName);
         });
     });
 };

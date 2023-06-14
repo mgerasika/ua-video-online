@@ -17,6 +17,7 @@ import { CONST } from '@server/constants/const.contant';
 import { data } from 'cypress/types/jquery';
 import { ITranslationDto } from '@server/dto/translation.dto';
 import { IImdbResultResponse } from '../imdb/search-imdb.controller';
+import { ENV } from '@server/env';
 
 export interface ISetupBody {
     searchImdb: boolean;
@@ -75,49 +76,34 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
 
     if (props.uploadActorPhotoToCdn) {
         const [dbActors = []] = await dbService.actor.getActorListAllAsync({});
-        await oneByOneAsync(
-            dbActors.filter((f) => !f.photo_url),
-            async (dbActor) => {
-                const fileName = `${dbActor.id}.jpg`;
-                const [hasFile] = await dbService.cdn.hasFileCDNAsync({ fileName: fileName });
-                if (hasFile) {
-                    return;
-                }
+        await oneByOneAsync(dbActors, async (dbActor) => {
+            const lastFileName = `${dbActor.id}_3.jpg`;
+            const [hasFile] = await dbService.cdn.hasFileCDNAsync({ fileName: lastFileName });
+            if (hasFile) {
+                return;
+            }
 
-                // const [movies, moviesError] = await dbService.groupMovie.groupMovieListV2Async({ actor_id: dbActor.id });
-                // if (moviesError) {
-                //     return logs.push('not found any movie with this actor' + dbActor.name);
-                // }
-                const [searchSuccess, searchError] = await dbService.tools.imageSearchAsync(
-                    `${dbActor.name} portrait, actor`,
-                );
-                if (searchError) {
-                    return logs.push(`can not find image for actor`, searchError);
-                } else if (searchSuccess?.length) {
-                    logs.push('search success ' + searchSuccess[0]);
-                }
+            const [searchSuccess, searchError] = await dbService.tools.imageSearchAsync(`${dbActor.name} portrait, actor`);
+            if (searchError) {
+                return logs.push(`can not find image for actor`, searchError);
+            } else if (searchSuccess?.length) {
+                logs.push('search success ' + searchSuccess[0]);
+            }
 
-                if (searchSuccess?.length) {
+            if (searchSuccess?.length) {
+				await oneByOneAsync(searchSuccess, async (src, idx) => {
+					const fileName = `${dbActor.id}_${idx+1}.jpg`;
                     const [successUpload, errorUpload] = await dbService.cdn.uploadFileToCDNAsync({
                         fileName: fileName,
-                        fileUrl: searchSuccess[0],
+                        fileUrl: src,
                     });
                     if (errorUpload) {
                         return logs.push(`error upload to cdn`, errorUpload);
                     }
                     logs.push(`success upload to cdn`, successUpload);
-                    const [, putActorError] = await dbService.actor.putActorAsync(dbActor.id, {
-                        ...dbActor,
-                        photo_url: successUpload || '',
-                    });
-                    if (putActorError) {
-                        logs.push('can not put photo_url', putActorError);
-                    } else {
-                        logs.push('put actor photo success ' + successUpload);
-                    }
-                }
-            },
-        );
+                });
+            }
+        });
     }
 
     if (props.updateRezkaCartoon) {
