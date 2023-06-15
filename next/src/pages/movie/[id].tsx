@@ -48,7 +48,7 @@ export async function getStaticProps({
 }
 
 export async function getStaticPaths() {
-  const response = await api.groupMovieGet()
+  const response = await api.groupMovieGet({})
   return {
     paths: response.data.map(groupMovie => {
       return {

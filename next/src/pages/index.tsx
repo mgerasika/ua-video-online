@@ -33,7 +33,7 @@ const App = ({ allMovies, allGenres, allYears }: IProps) => {
 export async function getStaticProps(): Promise<{
   props: Omit<IProps, 'page'>
 }> {
-  const movies = await api.groupMovieGet()
+  const movies = await api.groupMovieGet({})
   const genres = movies.data.map(movie => movie.genre)
   const currentYear = new Date().getFullYear()
   return {

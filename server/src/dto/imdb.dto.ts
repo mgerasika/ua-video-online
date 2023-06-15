@@ -30,7 +30,7 @@ export class ImdbDto implements Omit<IImdbDto, 'jsonObj'> {
     @Column({ nullable: true, type: 'text' })
     poster!: string;
 
-    @Column({ nullable: false, type: 'numeric' })
+    @Column({ nullable: false, type: 'numeric', default: 0 })
     imdb_rating!: number;
 
     @Column({ nullable: false, type: 'numeric' })

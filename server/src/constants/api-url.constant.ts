@@ -11,9 +11,6 @@ interface IApiUrl {
         groupMovie: {
             id: (id?: string) => IUrlItem;
         };
-        groupMovieV2: {
-            id: (id?: string) => IUrlItem;
-        };
         actor: {
             id: (id?: string) => IUrlItem;
         };
@@ -78,9 +75,7 @@ export const API_URL = createUrls<IApiUrl>({
         groupMovie: {
             id: (id?: string) => EMPTY_URL_ITEM,
         },
-        groupMovieV2: {
-            id: (id?: string) => EMPTY_URL_ITEM,
-        },
+       
         actor: {
             id: (id?: string) => EMPTY_URL_ITEM,
         },

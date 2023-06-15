@@ -7,40 +7,6 @@
   },
   "paths": {
     "api/actor/{id}": {
-      "get": {
-        "operationId": "",
-        "summary": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IActorResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ void"
-                }
-              }
-            }
-          }
-        }
-      },
       "delete": {
         "operationId": "",
         "summary": "",
@@ -63,6 +29,40 @@
                   "items": {
                     "$ref": "#/components/schemas/IActorResponse"
                   }
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ void"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "",
+        "summary": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IActorResponse"
                 }
               }
             }
@@ -343,7 +343,7 @@
         }
       }
     },
-    "api/group-movie-v2/": {
+    "api/group-movie/": {
       "get": {
         "operationId": "",
         "summary": "",
@@ -373,36 +373,6 @@
             }
           }
         ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/IGroupMovieResponse"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ void"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "api/group-movie/": {
-      "get": {
-        "operationId": "",
-        "summary": "",
-        "parameters": [],
         "responses": {
           "200": {
             "content": {
@@ -846,6 +816,46 @@
         }
       }
     },
+    "api/parser/rezka-details/": {
+      "post": {
+        "operationId": "",
+        "summary": "",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IRezkaDetailsBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IRezkaInfoByIdResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ void"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "api/rezka-movie/": {
       "get": {
         "operationId": "",
@@ -906,46 +916,6 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/IRezkaMovieResponse"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ void"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "api/parser/rezka-details/": {
-      "post": {
-        "operationId": "",
-        "summary": "",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IRezkaDetailsBody"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/IRezkaInfoByIdResponse"
                   }
                 }
               }
@@ -1212,160 +1182,6 @@
         }
       }
     },
-    "api/tools/setup/": {
-      "post": {
-        "operationId": "",
-        "summary": "",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ISetupBody"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string[]"
-                }
-              }
-            }
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ void"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "api/translation/{id}": {
-      "delete": {
-        "operationId": "",
-        "summary": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ITranslationResponse"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ void"
-                }
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "operationId": "",
-        "summary": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ITranslationResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ void"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "operationId": "",
-        "summary": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IPutTranslationBody"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ITranslationResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ void"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "api/translation/": {
       "get": {
         "operationId": "",
@@ -1427,6 +1243,160 @@
                   "items": {
                     "$ref": "#/components/schemas/ITranslationResponse"
                   }
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ void"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "api/tools/setup/": {
+      "post": {
+        "operationId": "",
+        "summary": "",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ISetupBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string[]"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ void"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "api/translation/{id}": {
+      "get": {
+        "operationId": "",
+        "summary": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ITranslationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ void"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "",
+        "summary": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ITranslationResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ void"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "",
+        "summary": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IPutTranslationBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ITranslationResponse"
                 }
               }
             }
@@ -1752,9 +1722,10 @@
           "cartoon"
         ]
       },
-      "IPutImdbBody": {
+      "IPostImdbBody": {
         "type": "object",
         "required": [
+          "id",
           "en_name",
           "poster",
           "imdb_rating",
@@ -1763,6 +1734,9 @@
           "json"
         ],
         "properties": {
+          "id": {
+            "type": "string"
+          },
           "en_name": {
             "type": "string"
           },
@@ -1786,10 +1760,9 @@
           }
         }
       },
-      "IPostImdbBody": {
+      "IPutImdbBody": {
         "type": "object",
         "required": [
-          "id",
           "en_name",
           "poster",
           "imdb_rating",
@@ -1798,9 +1771,6 @@
           "json"
         ],
         "properties": {
-          "id": {
-            "type": "string"
-          },
           "en_name": {
             "type": "string"
           },
@@ -1977,6 +1947,36 @@
           }
         }
       },
+      "IRezkaDetailsBody": {
+        "type": "object",
+        "required": [
+          "imdb_id"
+        ],
+        "properties": {
+          "imdb_id": {
+            "type": "string"
+          }
+        }
+      },
+      "IRezkaInfoByIdResponse": {
+        "type": "object",
+        "required": [
+          "translation_id",
+          "translation_name",
+          "cdn_encoded_video_url"
+        ],
+        "properties": {
+          "translation_id": {
+            "type": "string"
+          },
+          "translation_name": {
+            "type": "string"
+          },
+          "cdn_encoded_video_url": {
+            "type": "string"
+          }
+        }
+      },
       "IRezkaMovieResponse": {
         "type": "object",
         "required": [
@@ -2004,36 +2004,6 @@
             "type": "ERezkaVideoType"
           },
           "rezka_imdb_id": {
-            "type": "string"
-          }
-        }
-      },
-      "IRezkaDetailsBody": {
-        "type": "object",
-        "required": [
-          "imdb_id"
-        ],
-        "properties": {
-          "imdb_id": {
-            "type": "string"
-          }
-        }
-      },
-      "IRezkaInfoByIdResponse": {
-        "type": "object",
-        "required": [
-          "translation_id",
-          "translation_name",
-          "cdn_encoded_video_url"
-        ],
-        "properties": {
-          "translation_id": {
-            "type": "string"
-          },
-          "translation_name": {
-            "type": "string"
-          },
-          "cdn_encoded_video_url": {
             "type": "string"
           }
         }
@@ -2138,6 +2108,21 @@
           }
         }
       },
+      "ITranslationResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "label"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      },
       "ISetupBody": {
         "type": "object",
         "required": [
@@ -2174,21 +2159,6 @@
           },
           "uploadActorPhotoToCdn": {
             "type": "boolean"
-          }
-        }
-      },
-      "ITranslationResponse": {
-        "type": "object",
-        "required": [
-          "id",
-          "label"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "label": {
-            "type": "string"
           }
         }
       },

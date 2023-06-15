@@ -5,8 +5,13 @@ import { IQueryReturn } from '@server/utils/to-query.util';
 import { IRezkaMovieResponse } from '../rezka-movie/get-rezka-movie-list.controller';
 import { IImdbResponse } from '../imdb/get-imdb-list.controller';
 import { ITranslationResponse } from '../translation/get-translation-list.controller';
-import { ERezkaVideoType } from '@server/dto/rezka-movie.dto';
+import { ERezkaVideoType, RezkaMovieDto } from '@server/dto/rezka-movie.dto';
 import { IImdbResultResponse } from '../imdb/search-imdb.controller';
+import { sqlAsync } from '@server/utils/sql-async.util';
+import { ImdbDto } from '@server/dto/imdb.dto';
+import { TranslationDto } from '@server/dto/translation.dto';
+import { imdb } from '../imdb';
+import { sql_and, sql_where } from '@server/utils/sql.util';
 
 export interface IGroupMovieResponse {
     rate: number;
@@ -23,72 +28,64 @@ export interface IGroupMovieResponse {
 }
 
 interface IRequest extends IExpressRequest {
+    query: {
+        imdb_id?: string;
+        actor_id?: string;
+        actor_name?: string;
+    };
 }
 
 interface IResponse extends IExpressResponse<IGroupMovieResponse[], void> {}
 
 app.get(API_URL.api.groupMovie.toString(), async (req: IRequest, res: IResponse) => {
-    const [data, error] = await groupMovieListAsync();
+    const [data, error] = await groupMovieListAsync(req.query);
     if (error) {
         return res.status(400).send('error' + error);
     }
     return res.send(data);
 });
 
-export const groupMovieListAsync = async (): Promise<IQueryReturn<IGroupMovieResponse[]>> => {
-    const [allRelations, allRelationsError] = await dbService.rezkaMovieTranslation.getRezkaMovieTranslationAllAsync({});
-    if (allRelationsError) {
-        return [, allRelationsError];
-    }
-
-    const [allTranslation, allTranslationError] = await dbService.translation.getTranslationAllAsync({});
-    if (allTranslationError) {
-        return [, allTranslationError];
-    }
-    const [imdbs, imdbsError] = await dbService.imdb.getImdbAllAsync();
-    if (imdbsError) {
-        return [, imdbsError];
-    }
-    const [movies, error] = await dbService.rezkaMovie.getRezkaMoviesAllAsync({});
-    if (error) {
+export const groupMovieListAsync = async (query: IRequest['query']): Promise<IQueryReturn<IGroupMovieResponse[]>> => {
+    const [data, error] = await sqlAsync<(Pick<RezkaMovieDto, 'id' | 'video_type'> & ImdbDto & { ts_label_arr: string })[]>(
+        async (client) => {
+            const { rows } = await client.query(`
+		with t2 as (select rezka_movie.id as rezka_id , rezka_movie.video_type, imdb.*, translation.label as ts_label  FROM rezka_movie
+			inner join rezka_movie_translation on rezka_movie_translation.rezka_movie_id = rezka_movie.id 
+		   inner join translation on rezka_movie_translation.translation_id = translation.id 
+		   inner join rezka_movie_actor on rezka_movie.id = rezka_movie_actor.rezka_movie_id 
+		   inner join actor on actor.id = rezka_movie_actor.actor_id 
+		   inner join imdb on imdb.id = rezka_movie.rezka_imdb_id 
+		   where imdb.imdb_rating != 0 and imdb.imdb_rating != 'NaN'
+		   ${sql_and('imdb.id', query?.imdb_id)}
+		   ${sql_and('actor.id', query?.actor_id)}
+		   ${sql_and('actor.name', query?.actor_name)}
+	   ),
+	   t3 as (select STRING_AGG(ts_label, ',') as ts_label_arr, rezka_id  from t2 group by t2.rezka_id),
+	   t4 as (select distinct on (t2.rezka_id) t2.rezka_id, t2.*,t3.ts_label_arr from t2 inner join t3 on t3.rezka_id = t2.rezka_id)
+	   select * from t4 order by t4.imdb_rating desc`);
+            return rows;
+        },
+    );
+    if (data) {
+        return [
+            data.map((row) => {
+                const imdbJson: IImdbResultResponse = JSON.parse(row.json);
+                return {
+                    genre: imdbJson.Genre,
+                    imdb_id: imdbJson.imdbID,
+                    rate: row.imdb_rating,
+                    name: row.en_name,
+                    ua_name: row.ua_name || '',
+                    year: +row.year,
+                    has_en: row.ts_label_arr.toLowerCase().includes('ориг'),
+                    has_ua: row.ts_label_arr.toLowerCase().includes('укр'),
+                    has_kubik: row.ts_label_arr.toLowerCase().includes('кубик'),
+                    poster: row.poster,
+                    video_type: row.video_type,
+                };
+            }),
+        ];
+    } else {
         return [, error];
     }
-
-    console.log('allMovies', movies?.length);
-    console.log('allRelations', allRelations?.length);
-    console.log('allTranslation', allTranslation?.length);
-    console.log('imdbs', imdbs?.length);
-    const data = movies
-        ?.filter((movie) => movie)
-        .filter((movie) => allRelations?.some((relation) => relation.rezka_movie_id === movie.id))
-        .map((movie): IGroupMovieResponse | undefined => {
-            const imdb = imdbs?.find((i) => i.id === movie.rezka_imdb_id);
-            if (!imdb) {
-                return undefined;
-            }
-
-            const relations = allRelations?.filter((tr) => tr.rezka_movie_id === movie.id);
-
-            const translations = allTranslation?.filter((translation) =>
-                relations?.some((s) => s.translation_id === translation.id),
-            );
-            const imdbJson: IImdbResultResponse = JSON.parse(imdb.json);
-            return {
-                genre: imdbJson.Genre,
-                imdb_id: imdb.id,
-                rate: +imdb.imdb_rating,
-                name: imdb.en_name,
-                ua_name: imdb.ua_name || '',
-                year: +imdb.year,
-                has_en: translations?.some((t) => t.label.toLowerCase().includes('ориг')),
-                has_ua: translations?.some((t) => t.label.toLowerCase().includes('укр')),
-                has_kubik: translations?.some((t) => t.label.toLowerCase().includes('кубик')),
-                poster: imdb.poster,
-                video_type: movie.video_type,
-            };
-        })
-        .filter((m) => m?.imdb_id && (m.has_ua || m?.has_en))
-        .sort((a, b) => (Number(b?.rate) || 0) - (Number(a?.rate) || 0));
-    console.log('result', data?.length);
-    return [data as IGroupMovieResponse[]];
 };

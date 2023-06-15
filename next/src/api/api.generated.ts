@@ -101,7 +101,8 @@ export interface IGroupMovieResponse {
   poster: string
   video_type: ERezkaVideoType
 }
-export interface IPutImdbBody {
+export interface IPostImdbBody {
+  id: string
   en_name: string
   ua_name?: string
   poster: string
@@ -110,8 +111,7 @@ export interface IPutImdbBody {
   jsonObj: IImdbResultResponse
   json: string
 }
-export interface IPostImdbBody {
-  id: string
+export interface IPutImdbBody {
   en_name: string
   ua_name?: string
   poster: string
@@ -161,14 +161,6 @@ export interface IRezkaInfoResponse {
   href: string
   year: number
 }
-export interface IRezkaMovieResponse {
-  id: string
-  en_name: string
-  year: number
-  href: string
-  video_type: ERezkaVideoType
-  rezka_imdb_id: string
-}
 export interface IRezkaDetailsBody {
   imdb_id: string
 }
@@ -176,6 +168,14 @@ export interface IRezkaInfoByIdResponse {
   translation_id: string
   translation_name: string
   cdn_encoded_video_url: string
+}
+export interface IRezkaMovieResponse {
+  id: string
+  en_name: string
+  year: number
+  href: string
+  video_type: ERezkaVideoType
+  rezka_imdb_id: string
 }
 export interface IPostRezkaMovieBody {
   en_name: string
@@ -203,6 +203,10 @@ export interface IRezkaMovieTranslationResponse {
   data_camrip: number
   data_director: number
 }
+export interface ITranslationResponse {
+  id: string
+  label: string
+}
 export interface ISetupBody {
   searchImdb: boolean
   updateImdbUaName: boolean
@@ -213,10 +217,6 @@ export interface ISetupBody {
   addActorsFromMovieDb: boolean
   uploadActorPhotoToCdn: boolean
 }
-export interface ITranslationResponse {
-  id: string
-  label: string
-}
 export interface IPostTranslationBody {
   id: string
   label: string
@@ -224,8 +224,8 @@ export interface IPostTranslationBody {
 export interface IPutTranslationBody {
   label: string
 }
-export type TActorIdGetError = '' | 'undefined'
 export type TActorIdDeleteError = '' | 'undefined'
+export type TActorIdGetError = '' | 'undefined'
 export type TActorIdPutError = '' | 'undefined'
 export type TActorGetError = '' | 'undefined'
 export type TActorPostError = '' | 'undefined'
@@ -233,7 +233,6 @@ export type TCdnIdGetError = '' | 'undefined'
 export type TCdnIdHasFileGetError = '' | 'undefined'
 export type TCdnUploadPostError = '' | 'undefined'
 export type TGroupMovieIdGetError = '' | 'undefined'
-export type TGroupMovieV2GetError = '' | 'undefined'
 export type TGroupMovieGetError = '' | 'undefined'
 export type TImdbIdDeleteError = '' | 'undefined'
 export type TImdbIdGetError = '' | 'undefined'
@@ -245,24 +244,24 @@ export type TImdbSearchUaNamePostError = '' | 'undefined'
 export type TParserCypressImdbPostError = '' | 'undefined'
 export type TParserCypressStreamsPostError = '' | 'undefined'
 export type TParserRezkaAllPostError = '' | 'undefined'
+export type TParserRezkaDetailsPostError = '' | 'undefined'
 export type TRezkaMovieGetError = '' | 'undefined'
 export type TRezkaMoviePostError = '' | 'undefined'
-export type TParserRezkaDetailsPostError = '' | 'undefined'
 export type TRezkaMovieIdDeleteError = '' | 'undefined'
 export type TRezkaMovieIdGetError = '' | 'undefined'
 export type TRezkaMovieIdPutError = '' | 'undefined'
 export type TRezkaMovieSearchRezkaWithoutStreamGetError = '' | 'undefined'
 export type TRezkaMovieTranslationGetError = '' | 'undefined'
 export type TToolsImageSearchPostError = '' | 'undefined'
-export type TToolsSetupPostError = '' | 'undefined'
-export type TTranslationIdDeleteError = '' | 'undefined'
-export type TTranslationIdGetError = '' | 'undefined'
-export type TTranslationIdPutError = '' | 'undefined'
 export type TTranslationGetError = '' | 'undefined'
 export type TTranslationPostError = '' | 'undefined'
+export type TToolsSetupPostError = '' | 'undefined'
+export type TTranslationIdGetError = '' | 'undefined'
+export type TTranslationIdDeleteError = '' | 'undefined'
+export type TTranslationIdPutError = '' | 'undefined'
 export type TPartialErrorCodes =
-  | TActorIdGetError
   | TActorIdDeleteError
+  | TActorIdGetError
   | TActorIdPutError
   | TActorGetError
   | TActorPostError
@@ -270,7 +269,6 @@ export type TPartialErrorCodes =
   | TCdnIdHasFileGetError
   | TCdnUploadPostError
   | TGroupMovieIdGetError
-  | TGroupMovieV2GetError
   | TGroupMovieGetError
   | TImdbIdDeleteError
   | TImdbIdGetError
@@ -282,37 +280,37 @@ export type TPartialErrorCodes =
   | TParserCypressImdbPostError
   | TParserCypressStreamsPostError
   | TParserRezkaAllPostError
+  | TParserRezkaDetailsPostError
   | TRezkaMovieGetError
   | TRezkaMoviePostError
-  | TParserRezkaDetailsPostError
   | TRezkaMovieIdDeleteError
   | TRezkaMovieIdGetError
   | TRezkaMovieIdPutError
   | TRezkaMovieSearchRezkaWithoutStreamGetError
   | TRezkaMovieTranslationGetError
   | TToolsImageSearchPostError
-  | TToolsSetupPostError
-  | TTranslationIdDeleteError
-  | TTranslationIdGetError
-  | TTranslationIdPutError
   | TTranslationGetError
   | TTranslationPostError
+  | TToolsSetupPostError
+  | TTranslationIdGetError
+  | TTranslationIdDeleteError
+  | TTranslationIdPutError
   | ''
 
 export const createApiRequest = (rs: IRequestService) => ({
-  actorIdGet: (
-    id: string,
-  ): CustomPromise<
-    CustomAxiosResponse<IActorResponse, TActorIdGetError>,
-    IBEError<TActorIdGetError>
-  > => rs.get(formatUrl(API_SERVER_URL + `api/actor/${id}`)),
-
   actorIdDelete: (
     id: string,
   ): CustomPromise<
     CustomAxiosResponse<Array<IActorResponse>, TActorIdDeleteError>,
     IBEError<TActorIdDeleteError>
   > => rs.delete(formatUrl(API_SERVER_URL + `api/actor/${id}`)),
+
+  actorIdGet: (
+    id: string,
+  ): CustomPromise<
+    CustomAxiosResponse<IActorResponse, TActorIdGetError>,
+    IBEError<TActorIdGetError>
+  > => rs.get(formatUrl(API_SERVER_URL + `api/actor/${id}`)),
 
   actorIdPut: (
     id: string,
@@ -364,19 +362,14 @@ export const createApiRequest = (rs: IRequestService) => ({
     IBEError<TGroupMovieIdGetError>
   > => rs.get(formatUrl(API_SERVER_URL + `api/group-movie/${id}`)),
 
-  groupMovieV2Get: (
+  groupMovieGet: (
     query:
       | { imdb_id?: string; actor_id?: string; actor_name?: string }
       | undefined,
   ): CustomPromise<
-    CustomAxiosResponse<Array<IGroupMovieResponse>, TGroupMovieV2GetError>,
-    IBEError<TGroupMovieV2GetError>
-  > => rs.get(formatUrl(API_SERVER_URL + `api/group-movie-v2/`, query)),
-
-  groupMovieGet: (): CustomPromise<
     CustomAxiosResponse<Array<IGroupMovieResponse>, TGroupMovieGetError>,
     IBEError<TGroupMovieGetError>
-  > => rs.get(formatUrl(API_SERVER_URL + `api/group-movie/`)),
+  > => rs.get(formatUrl(API_SERVER_URL + `api/group-movie/`, query)),
 
   imdbIdDelete: (
     id: string,
@@ -454,6 +447,16 @@ export const createApiRequest = (rs: IRequestService) => ({
     IBEError<TParserRezkaAllPostError>
   > => rs.post(formatUrl(API_SERVER_URL + `api/parser/rezka-all/`, query)),
 
+  parserRezkaDetailsPost: (
+    body: IRezkaDetailsBody,
+  ): CustomPromise<
+    CustomAxiosResponse<
+      Array<IRezkaInfoByIdResponse>,
+      TParserRezkaDetailsPostError
+    >,
+    IBEError<TParserRezkaDetailsPostError>
+  > => rs.post(formatUrl(API_SERVER_URL + `api/parser/rezka-details/`), body),
+
   rezkaMovieGet: (
     query: { imdb_id?: string } | undefined,
   ): CustomPromise<
@@ -467,16 +470,6 @@ export const createApiRequest = (rs: IRequestService) => ({
     CustomAxiosResponse<Array<IRezkaMovieResponse>, TRezkaMoviePostError>,
     IBEError<TRezkaMoviePostError>
   > => rs.post(formatUrl(API_SERVER_URL + `api/rezka-movie/`), body),
-
-  parserRezkaDetailsPost: (
-    body: IRezkaDetailsBody,
-  ): CustomPromise<
-    CustomAxiosResponse<
-      Array<IRezkaInfoByIdResponse>,
-      TParserRezkaDetailsPostError
-    >,
-    IBEError<TParserRezkaDetailsPostError>
-  > => rs.post(formatUrl(API_SERVER_URL + `api/parser/rezka-details/`), body),
 
   rezkaMovieIdDelete: (
     id: string,
@@ -532,35 +525,6 @@ export const createApiRequest = (rs: IRequestService) => ({
     IBEError<TToolsImageSearchPostError>
   > => rs.post(formatUrl(API_SERVER_URL + `api/tools/image_search/`)),
 
-  toolsSetupPost: (
-    body: ISetupBody,
-  ): CustomPromise<
-    CustomAxiosResponse<string[], TToolsSetupPostError>,
-    IBEError<TToolsSetupPostError>
-  > => rs.post(formatUrl(API_SERVER_URL + `api/tools/setup/`), body),
-
-  translationIdDelete: (
-    id: string,
-  ): CustomPromise<
-    CustomAxiosResponse<Array<ITranslationResponse>, TTranslationIdDeleteError>,
-    IBEError<TTranslationIdDeleteError>
-  > => rs.delete(formatUrl(API_SERVER_URL + `api/translation/${id}`)),
-
-  translationIdGet: (
-    id: string,
-  ): CustomPromise<
-    CustomAxiosResponse<ITranslationResponse, TTranslationIdGetError>,
-    IBEError<TTranslationIdGetError>
-  > => rs.get(formatUrl(API_SERVER_URL + `api/translation/${id}`)),
-
-  translationIdPut: (
-    id: string,
-    body: IPutTranslationBody,
-  ): CustomPromise<
-    CustomAxiosResponse<ITranslationResponse, TTranslationIdPutError>,
-    IBEError<TTranslationIdPutError>
-  > => rs.put(formatUrl(API_SERVER_URL + `api/translation/${id}`), body),
-
   translationGet: (
     query: { imdb_id?: string } | undefined,
   ): CustomPromise<
@@ -574,11 +538,40 @@ export const createApiRequest = (rs: IRequestService) => ({
     CustomAxiosResponse<Array<ITranslationResponse>, TTranslationPostError>,
     IBEError<TTranslationPostError>
   > => rs.post(formatUrl(API_SERVER_URL + `api/translation/`), body),
+
+  toolsSetupPost: (
+    body: ISetupBody,
+  ): CustomPromise<
+    CustomAxiosResponse<string[], TToolsSetupPostError>,
+    IBEError<TToolsSetupPostError>
+  > => rs.post(formatUrl(API_SERVER_URL + `api/tools/setup/`), body),
+
+  translationIdGet: (
+    id: string,
+  ): CustomPromise<
+    CustomAxiosResponse<ITranslationResponse, TTranslationIdGetError>,
+    IBEError<TTranslationIdGetError>
+  > => rs.get(formatUrl(API_SERVER_URL + `api/translation/${id}`)),
+
+  translationIdDelete: (
+    id: string,
+  ): CustomPromise<
+    CustomAxiosResponse<Array<ITranslationResponse>, TTranslationIdDeleteError>,
+    IBEError<TTranslationIdDeleteError>
+  > => rs.delete(formatUrl(API_SERVER_URL + `api/translation/${id}`)),
+
+  translationIdPut: (
+    id: string,
+    body: IPutTranslationBody,
+  ): CustomPromise<
+    CustomAxiosResponse<ITranslationResponse, TTranslationIdPutError>,
+    IBEError<TTranslationIdPutError>
+  > => rs.put(formatUrl(API_SERVER_URL + `api/translation/${id}`), body),
 })
 
 const URL = {
-  actorIdGet: (id: string): string => `api/actor/${id}`,
   actorIdDelete: (id: string): string => `api/actor/${id}`,
+  actorIdGet: (id: string): string => `api/actor/${id}`,
   actorIdPut: (id: string): string => `api/actor/${id}`,
   actorGet: (): string => `api/actor/`,
   actorPost: (): string => `api/actor/`,
@@ -586,7 +579,6 @@ const URL = {
   cdnIdHasFileGet: (id: string): string => `api/cdn/${id}hasFile/`,
   cdnUploadPost: (): string => `api/cdn/upload/`,
   groupMovieIdGet: (id: string): string => `api/group-movie/${id}`,
-  groupMovieV2Get: (): string => `api/group-movie-v2/`,
   groupMovieGet: (): string => `api/group-movie/`,
   imdbIdDelete: (id: string): string => `api/imdb/${id}`,
   imdbIdGet: (id: string): string => `api/imdb/${id}`,
@@ -598,9 +590,9 @@ const URL = {
   parserCypressImdbPost: (): string => `api/parser/cypress-imdb/`,
   parserCypressStreamsPost: (): string => `api/parser/cypress-streams/`,
   parserRezkaAllPost: (): string => `api/parser/rezka-all/`,
+  parserRezkaDetailsPost: (): string => `api/parser/rezka-details/`,
   rezkaMovieGet: (): string => `api/rezka-movie/`,
   rezkaMoviePost: (): string => `api/rezka-movie/`,
-  parserRezkaDetailsPost: (): string => `api/parser/rezka-details/`,
   rezkaMovieIdDelete: (id: string): string => `api/rezka-movie/${id}`,
   rezkaMovieIdGet: (id: string): string => `api/rezka-movie/${id}`,
   rezkaMovieIdPut: (id: string): string => `api/rezka-movie/${id}`,
@@ -608,12 +600,12 @@ const URL = {
     `api/rezka-movie/search-rezka-without-stream/`,
   rezkaMovieTranslationGet: (): string => `api/rezka-movie-translation/`,
   toolsImageSearchPost: (): string => `api/tools/image_search/`,
-  toolsSetupPost: (): string => `api/tools/setup/`,
-  translationIdDelete: (id: string): string => `api/translation/${id}`,
-  translationIdGet: (id: string): string => `api/translation/${id}`,
-  translationIdPut: (id: string): string => `api/translation/${id}`,
   translationGet: (): string => `api/translation/`,
   translationPost: (): string => `api/translation/`,
+  toolsSetupPost: (): string => `api/tools/setup/`,
+  translationIdGet: (id: string): string => `api/translation/${id}`,
+  translationIdDelete: (id: string): string => `api/translation/${id}`,
+  translationIdPut: (id: string): string => `api/translation/${id}`,
 }
 // INSERT END
 // DON'T REMOVE THIS COMMENTS!!!
