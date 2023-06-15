@@ -52,7 +52,7 @@ const schema = Joi.object<ISetupBody>({
 });
 
 app.post(API_URL.api.tools.setup.toString(), async (req: IRequest, res: IResponse) => {
-    (req as any).setTimeout(60 * 60 * 60 * 10000);
+    (req as any).setTimeout(30 * 24 * 60 * 60 * 1000);
     (req as any).connection.on('close', function () {
         console.log('cancel request');
     });

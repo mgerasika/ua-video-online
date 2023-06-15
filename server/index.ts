@@ -17,4 +17,3 @@ const port = process.env.PORT || 8005;
 const server = app.listen(port, function () {
     console.log('Listening on port ' + port);
 });
-server.setTimeout(500000);

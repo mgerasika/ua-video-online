@@ -39,9 +39,9 @@ export const imageSearchAsync = async (search: string): Promise<IQueryReturn<str
                 cx: cx,
                 searchType: 'image',
                 q: search,
-                imgSize: 'xlarge',
+                imgSize: 'medium',
                 imgType: 'photo',
-                num: 5,
+                num: 3,
             },
         });
 
