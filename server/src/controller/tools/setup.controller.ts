@@ -367,7 +367,7 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
     if (props.updateRezkaTranslations) {
         const [dbMovies = []] = await dbService.rezkaMovie.getRezkaMoviesAllAsync({});
 
-        const filtered = dbMovies.filter((dbMovie) => dbMovie.rezka_imdb_id);
+        const filtered = dbMovies.filter((dbMovie) => dbMovie.rezka_imdb_id && dbMovie.rezka_imdb_id !== 'tt000000');
         logs.push('download streams for ' + filtered.length);
         // imdb id
         await oneByOneAsync(
@@ -379,24 +379,11 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
                 if (trs?.length && trs?.length > 0 && trs[0].translation_id) {
                     return;
                 }
+
                 logs.push('imdbId', dbMovie.rezka_imdb_id);
                 const [parseItem, parserError] = await dbService.parser.getCypressRezkaStreamsAsync(dbMovie.href);
                 if (parserError) {
                     logs.push(`parse cypress rezka stream error`);
-                    //add empty translation relation
-                    const [, postRelationError] = await dbService.rezkaMovieTranslation.postRezkaMovieTranslationAsync({
-                        rezka_movie_id: dbMovie.id,
-                        translation_id: '',
-                        data_ads: 0,
-                        data_camrip: 0,
-                        data_director: 0,
-                    });
-
-                    if (postRelationError) {
-                        logs.push('post empty relation error', postRelationError);
-                    } else {
-                        logs.push('post empty relation success');
-                    }
                     return;
                 } else if (parseItem) {
                     const allTranslations = parseItem.translations;
@@ -404,19 +391,6 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
                     logs.push(`parse cypress success translations = `, allTranslations.length);
                     if (allTranslations.length === 0) {
                         //add empty translation relation
-                        const [, postRelationError] = await dbService.rezkaMovieTranslation.postRezkaMovieTranslationAsync({
-                            rezka_movie_id: dbMovie.id,
-                            translation_id: '',
-                            data_ads: 0,
-                            data_camrip: 0,
-                            data_director: 0,
-                        });
-
-                        if (postRelationError) {
-                            logs.push('post empty relation error', postRelationError);
-                        } else {
-                            logs.push('post empty relation success');
-                        }
                     }
                     await oneByOneAsync(
                         allTranslations,

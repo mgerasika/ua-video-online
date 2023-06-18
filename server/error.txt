@@ -1,0 +1,14 @@
+2023-06-18T17:38:28.157996000Z [STARTED] Task without title.
+2023-06-18T17:38:28.189192000Z [FAILED] Xvfb exited with a non zero exit code.
+2023-06-18T17:38:28.189353000Z [FAILED] 
+2023-06-18T17:38:28.189434000Z [FAILED] There was a problem spawning Xvfb.
+2023-06-18T17:38:28.189505000Z [FAILED] 
+2023-06-18T17:38:28.189570000Z [FAILED] This is likely a problem with your system, permissions, or installation of Xvfb.
+2023-06-18T17:38:28.189650000Z [FAILED] 
+2023-06-18T17:38:28.189732000Z [FAILED] ----------
+2023-06-18T17:38:28.189806000Z [FAILED] 
+2023-06-18T17:38:28.189865000Z [FAILED] Error: _XSERVTransSocketUNIXCreateListener: ...SocketCreateListener() failed
+2023-06-18T17:38:28.189919000Z [FAILED] _XSERVTransMakeAllCOTSServerListeners: server already running
+2023-06-18T17:38:28.189980000Z [FAILED] (EE) 
+2023-06-18T17:38:28.190035000Z [FAILED] Fatal server error:
+2023-06-18T17:38:28.190099000Z [FAILED] (EE) Cannot establish any listening sockets - Make sure an X server isn't already running(EE)

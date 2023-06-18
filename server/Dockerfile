@@ -1,12 +1,12 @@
-FROM node:14-alpine
+FROM cypress/base:14.15.0
 
+ARG PORT
 COPY . .
 
 WORKDIR /app
-RUN yarn add xvfb
 RUN yarn
 RUN yarn build
 
-EXPOSE 8005
+EXPOSE ${PORT}
 
 CMD [ "yarn",  "start" ]
