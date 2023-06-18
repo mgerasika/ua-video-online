@@ -30,7 +30,7 @@ export async function getStaticProps({
   props: IProps
 }> {
   const actor = await api.actorIdGet(params.id)
-  const movies = await api.groupMovieV2Get({ actor_id: params.id })
+  const movies = await api.groupMovieGet({ actor_id: params.id })
   return {
     props: {
       actor: actor.data,

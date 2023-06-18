@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import {
-  ERezkaVideoType,
   IActorResponse,
   IGroupMovieResponse,
 } from '../../../api/api.generated'
@@ -32,13 +31,13 @@ export const ActorContainer = ({ allMovies, actor }: IProps): JSX.Element => {
   const handleScrollEnd = useCallback(() => {
     setPage(prev => {
       const newVal = prev + 1
-      sessionStorage.setItem('page-actor', newVal + '')
+      sessionStorage.setItem('page-actor-' + actor?.id, newVal + '')
       return newVal
     })
   }, [page])
 
   useEffect(() => {
-    const newPage = sessionStorage.getItem('page-actor')
+    const newPage = sessionStorage.getItem('page-actor-' + actor?.id)
     if (newPage) {
       setPage(+newPage)
     }

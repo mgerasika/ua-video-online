@@ -55,7 +55,7 @@ export const MoviesComponent = ({
   }, [400])
 
   return (
-    <Layout showBack={false}>
+	  <Layout showBack={false} title={ 'HD Online UA'}>
       <MovieFilter
         allGenres={allGenres}
         allYears={allYears}

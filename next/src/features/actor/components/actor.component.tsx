@@ -13,36 +13,9 @@ interface IProps {
   movies: IGroupMovieResponse[] | undefined
 }
 export const ActorComponent = ({ actor, movies }: IProps): JSX.Element => {
-  useEffect(() => {
-    let interval = 0
-    const handleScroll = () => {
-      interval = window.setTimeout(() => {
-        window.sessionStorage.setItem('scrollTop', window.scrollY + '')
-      }, 500)
-    }
-
-    window.addEventListener('scroll', handleScroll)
-
-    return (): void => {
-      window.clearTimeout(interval)
-      window.removeEventListener('scroll', handleScroll)
-    }
-  }, [])
-
-  useEffect(() => {
-    const interval = setTimeout(() => {
-      const position = window.sessionStorage.getItem('scrollTop')
-      if (position) {
-        window.scrollTo({ left: 0, top: +position || 0 })
-      }
-    })
-    return () => window.clearInterval(interval)
-  }, [400])
-
   return (
-    <Layout showBack={true}>
-      <div tw="text-white text-2xl pb-2"> {actor?.name}</div>
-      <div tw="flex">
+	  <Layout showBack={true} title={ <>{actor?.name}</>}>
+      <div tw="hidden">
         {[1, 2, 3].map(idx => {
           return (
             <img

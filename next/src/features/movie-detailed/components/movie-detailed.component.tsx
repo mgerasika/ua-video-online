@@ -118,11 +118,17 @@ export const MovieDetailed = ({
       </>
     )
   }
+
+  const uaName = useMemo(() => {
+    return imdb_info?.en_name !== imdb_info?.ua_name
+      ? imdb_info?.ua_name
+      : undefined
+  }, [])
+
   return (
-    <Layout showBack={true}>
+    <Layout showBack={true} title={imdb_info?.en_name}>
       <div tw="flex flex-1 flex-col lg:flex-row">
         <div tw="relative lg:w-1/3">
-          <div tw=" px-4 lg:hidden text-center">{renderTitle()}</div>
           <VideoPlayer
             onPlay={() => setPlaying(true)}
             imgSrc={imdb_info?.poster || ''}
@@ -158,8 +164,6 @@ export const MovieDetailed = ({
           </div>
         </div>
         <div tw="px-4 lg:py-2 lg:w-2/3">
-          <div tw="text-left hidden lg:block">{renderTitle()}</div>
-
           <div tw=" text-white">
             <div>
               <StatusTag tw="mr-2 my-1 float-left">
@@ -175,6 +179,14 @@ export const MovieDetailed = ({
                 ))}
               <div tw="clear-both"></div>
             </div>
+
+            {uaName && (
+              <p css={styles.line}>
+                <span css={styles.label}> UA Name:</span>{' '}
+                <span css={styles.value}>{uaName}</span>
+              </p>
+            )}
+
             <p css={styles.line}>
               <span css={styles.label}> Actors:</span>{' '}
               <span css={styles.value}>
