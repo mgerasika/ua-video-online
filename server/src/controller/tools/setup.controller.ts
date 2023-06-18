@@ -367,19 +367,22 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
     if (props.updateRezkaTranslations) {
         const [dbMovies = []] = await dbService.rezkaMovie.getRezkaMoviesAllAsync({});
 
-        const [allDbTranslations] = await dbService.rezkaMovieTranslation.getRezkaMovieTranslationAllAsync({});
-
-        const filtered = dbMovies
-            .filter((dbMovie) => dbMovie.rezka_imdb_id)
-            .filter((dbMovie) => !allDbTranslations?.some((tr) => tr.rezka_movie_id === dbMovie.id && tr.translation_id));
+        const filtered = dbMovies.filter((dbMovie) => dbMovie.rezka_imdb_id);
         logs.push('download streams for ' + filtered.length);
         // imdb id
         await oneByOneAsync(
             shuffleArray(filtered),
             async (dbMovie) => {
-                logs.push('imdbId', dbMovie.rezka_imdb_id);
+              
 
-                const [parseItem, parserError] = await dbService.parser.getCypressRezkaStreamsAsync(dbMovie.href);
+                const [trs] = await dbService.rezkaMovieTranslation.getRezkaMovieTranslationAllAsync({
+                    rezka_movie_id: dbMovie.id,
+                });
+                if (trs?.length && trs?.length > 0) {
+                    return;
+                }
+                logs.push('imdbId', dbMovie.rezka_imdb_id);
+				const [parseItem, parserError] = await dbService.parser.getCypressRezkaStreamsAsync(dbMovie.href);
                 if (parserError) {
                     logs.push(`parse cypress rezka stream error`);
                     //add empty translation relation
