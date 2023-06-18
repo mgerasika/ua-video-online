@@ -3,6 +3,7 @@ import { rabbitMQ_connectQueueAsync } from '@server/rabbit-mq';
 import { dbService } from './src/controller/db.service';
 import { app } from './src/express-app';
 import { typeOrmAsync } from './src/utils/type-orm-async.util';
+import { ENV } from '@server/env';
 
 console.log('process.env.NODE_ENV', process.env.NODE_ENV);
 app.get('/', (req, res) => {
@@ -16,6 +17,8 @@ if (process.env.NODE_ENV === 'development') {
 
 const port = process.env.PORT || 8005;
 rabbitMQ_connectQueueAsync();
+
+console.log('ENV = ', ENV);
 const server = app.listen(port, function () {
     console.log('Listening on port ' + port);
 });

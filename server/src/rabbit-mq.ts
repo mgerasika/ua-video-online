@@ -1,12 +1,13 @@
 import amqp, { Channel, Connection, ConsumeMessage } from 'amqplib';
 import { IQueryReturn } from './utils/to-query.util';
+import { ENV } from './env';
 
 let _connection: Connection;
 let _channel: Channel;
 const CHANNEL_NAME = 'ua-video-online-queue';
 export async function rabbitMQ_connectQueueAsync() {
     try {
-        _connection = await amqp.connect('amqp://178.210.131.101:5672');
+        _connection = await amqp.connect(ENV.rabbit_mq || '');
         if (_connection) {
             console.log('Connected to Rabbit MQ');
             _channel = await _connection.createChannel();

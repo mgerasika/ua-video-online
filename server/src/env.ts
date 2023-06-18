@@ -7,5 +7,6 @@ export const ENV = {
     password: process.env.DB_PASSWORD,
     node_env: process.env.NODE_ENV,
     port: 5432,
-    cdn: 'https://ua-video-online-cdn.web.app/',
+    cdn: process.env.CDN,
+    rabbit_mq: process.env.RABBIT_MQ,
 };
