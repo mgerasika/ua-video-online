@@ -73,47 +73,52 @@ export const parseRezkaDetailsAsync = async (imdb_id: string): Promise<IQueryRet
 
     let error: string | undefined = undefined;
     const res: IRezkaInfoByIdResponse[] = [];
-    await oneByOneAsync(dbRelations.filter(r=>r.translation_id), async (activeRelation): Promise<void> => {
-        console.log('activeRelation', activeRelation);
-        const postDataStr = `id=${videoId}&translator_id=${activeRelation.translation_id}&is_camrip=${activeRelation.data_camrip}&is_ads=${activeRelation.data_ads}&is_director=${activeRelation.data_director}&favs=7e980c10-dae0-4b55-a45a-2315678e8e7e&action=get_movie`;
-        const [cdnResponse, cdnError] = await toQuery(
-            async () =>
-                await axios({
-                    method: 'post',
-                    url: `https://rezka.ag/ajax/get_cdn_series/?t=${new Date().getTime()}`,
-                    headers: {
-                        ...REZKA_HEADERS.headers,
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                        Cookie: `SL_G_WPT_TO=en; SL_GWPT_Show_Hide_tmp=1; SL_wptGlobTipTmp=1; PHPSESSID=${phpSessionId}; dle_user_taken=1; dle_user_token=30f358e2681322bd118c71ab06481604; _ym_uid=1684426440709605085; _ym_d=1684426440; _ym_isad=1; _ym_hostIndex=0-3%2C1-0; _ym_visorc=b`,
-                        Origin: 'https://rezka.ag',
-                        Referrer: 'https://rezka.ag/series/documentary/57418-makgregor-navsegda-2023.html',
-                    },
-                    data: postDataStr,
-                }),
-        );
-        if (cdnError) {
-            error = 'get cdn error ' + cdnError + ' postData = ' + postDataStr;
-            return;
-        }
-        if (!cdnResponse?.data.success) {
-            error =
-                'cdn custom error session_id=' +
-                phpSessionId +
-                ' error =' +
-                cdnResponse?.data?.message +
-                ' href = ' +
-                href +
-                ' postData = ' +
-                postDataStr;
-        }
-        console.log('get_cdn_series', cdnResponse?.data);
-        const [translation] = await dbService.translation.getTranslationByIdAsync(activeRelation.translation_id);
-        res.push({
-            translation_id: activeRelation.id,
-            translation_name: translation?.label || '',
-            cdn_encoded_video_url: cdnResponse?.data.url,
-        });
-    });
+    await oneByOneAsync(
+        dbRelations.filter((r) => r.translation_id),
+        async (activeRelation): Promise<void> => {
+            console.log('activeRelation', activeRelation);
+            const postDataStr = `id=${videoId}&translator_id=${activeRelation.translation_id}&is_camrip=${activeRelation.data_camrip}&is_ads=${activeRelation.data_ads}&is_director=${activeRelation.data_director}&favs=2eabb15e-3db9-4fc5-861c-c699233fbf36&action=get_movie`;
+            const [cdnResponse, cdnError] = await toQuery(
+                async () =>
+                    await axios({
+                        method: 'post',
+                        url: `https://rezka.ag/ajax/get_cdn_series/?t=${new Date().getTime()}`,
+                        headers: {
+                            ...REZKA_HEADERS.headers,
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                            Cookie: `SL_G_WPT_TO=en; SL_GWPT_Show_Hide_tmp=1; SL_wptGlobTipTmp=1; PHPSESSID=${phpSessionId}; dle_user_taken=1; dle_user_token=30f358e2681322bd118c71ab06481604; _ym_uid=1684426440709605085; _ym_d=1684426440; _ym_isad=1; _ym_hostIndex=0-3%2C1-0; _ym_visorc=b`,
+                            Origin: 'https://rezka.ag',
+                            Referrer: 'https://rezka.ag/films/documentary/57420-neizmennyy-maykl-dzh-foks-2023.html',
+                            Host: 'rezka.ag',
+                        },
+                        data: postDataStr,
+                    }),
+            );
+            if (cdnError) {
+                error = 'get cdn error ' + cdnError + ' postData = ' + postDataStr;
+                return;
+            }
+            if (!cdnResponse?.data.success) {
+                error =
+                    'cdn custom error session_id=' +
+                    phpSessionId +
+                    ' error =' +
+                    cdnResponse?.data?.message +
+                    ' href = ' +
+                    href +
+                    ' postData = ' +
+                    postDataStr;
+            }
+            console.log('get_cdn_series response', cdnResponse?.data);
+            console.log('request', postDataStr);
+            const [translation] = await dbService.translation.getTranslationByIdAsync(activeRelation.translation_id);
+            res.push({
+                translation_id: activeRelation.translation_id,
+                translation_name: translation?.label || '',
+                cdn_encoded_video_url: cdnResponse?.data.url,
+            });
+        },
+    );
 
     return [res, error];
 };

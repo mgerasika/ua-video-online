@@ -20,7 +20,12 @@ app.use((err: any, req: any, res: any, next: any) => {
     res.status(500);
     res.render('error', { error: err });
 });
-
+app.use(function (err: any, req: any, res: any, next: any) {
+    if (err) {
+        console.error(err.stack);
+        res.status(400).send('Custom handler ' + err);
+    }
+});
 const morgan = require('morgan');
 morgan.token('body', (req: any, res: any) => {
     return JSON.stringify(req.body);
