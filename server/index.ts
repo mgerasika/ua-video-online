@@ -1,4 +1,5 @@
 require('module-alias/register');
+import { rabbitMQ_connectQueueAsync } from '@server/rabbit-mq';
 import { dbService } from './src/controller/db.service';
 import { app } from './src/express-app';
 import { typeOrmAsync } from './src/utils/type-orm-async.util';
@@ -14,6 +15,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const port = process.env.PORT || 8005;
+rabbitMQ_connectQueueAsync();
 const server = app.listen(port, function () {
     console.log('Listening on port ' + port);
 });

@@ -8,6 +8,7 @@ import { rezkaMovieTranslation } from './rezka_movie_translation';
 import { actor } from './actor';
 import { rezkaMovieActor } from './rezka_movie_actor';
 import { cdn } from './cdn';
+import { rabbitMQ } from './rabbit-mq';
 
 export const dbService = {
 	cdn,
@@ -19,5 +20,6 @@ export const dbService = {
     translation,
     rezkaMovieTranslation,
     actor,
-    rezkaMovieActor,
+	rezkaMovieActor,
+	rabbitMQ
 };

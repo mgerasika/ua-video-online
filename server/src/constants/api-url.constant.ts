@@ -8,6 +8,9 @@ interface IApiUrl {
             search: IUrlItem;
             search_ua_name: IUrlItem;
         };
+        rabbitMQ: {
+            sendMessage: IUrlItem;
+        };
         groupMovie: {
             id: (id?: string) => IUrlItem;
         };
@@ -22,8 +25,8 @@ interface IApiUrl {
         rezkaMovieTranslation: IUrlItem;
         stream: {
             id: (id?: string) => IUrlItem;
-		};
-		cdn: {
+        };
+        cdn: {
             id: (id?: string) => {
                 hasFile: IUrlItem;
             };
@@ -54,7 +57,9 @@ export const API_URL = createUrls<IApiUrl>({
             search: EMPTY_URL_ITEM,
             search_ua_name: EMPTY_URL_ITEM,
         },
-
+        rabbitMQ: {
+            sendMessage: EMPTY_URL_ITEM,
+        },
         rezkaMovie: {
             searchRezkaWithoutStream: EMPTY_URL_ITEM,
             id: (id?: string) => EMPTY_URL_ITEM,
@@ -62,8 +67,8 @@ export const API_URL = createUrls<IApiUrl>({
         rezkaMovieTranslation: EMPTY_URL_ITEM,
         stream: {
             id: (id?: string) => EMPTY_URL_ITEM,
-		},
-		cdn: {
+        },
+        cdn: {
             id: (id?: string) => ({
                 hasFile: EMPTY_URL_ITEM,
             }),
@@ -75,7 +80,7 @@ export const API_URL = createUrls<IApiUrl>({
         groupMovie: {
             id: (id?: string) => EMPTY_URL_ITEM,
         },
-       
+
         actor: {
             id: (id?: string) => EMPTY_URL_ITEM,
         },

@@ -91,8 +91,8 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
             }
 
             if (searchSuccess?.length) {
-				await oneByOneAsync(searchSuccess, async (src, idx) => {
-					const fileName = `${dbActor.id}_${idx+1}.jpg`;
+                await oneByOneAsync(searchSuccess, async (src, idx) => {
+                    const fileName = `${dbActor.id}_${idx + 1}.jpg`;
                     const [successUpload, errorUpload] = await dbService.cdn.uploadFileToCDNAsync({
                         fileName: fileName,
                         fileUrl: src,
@@ -369,8 +369,9 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
 
         const [allDbTranslations] = await dbService.rezkaMovieTranslation.getRezkaMovieTranslationAllAsync({});
 
-        const filtered = dbMovies.filter((dbMovie) => dbMovie.rezka_imdb_id);
-        // .filter((dbMovie) => !!allDbTranslations?.filter((tr) => tr.rezka_movie_id === dbMovie.id && tr.translation_id));
+        const filtered = dbMovies
+            .filter((dbMovie) => dbMovie.rezka_imdb_id)
+            .filter((dbMovie) => !allDbTranslations?.some((tr) => tr.rezka_movie_id === dbMovie.id && tr.translation_id));
         logs.push('download streams for ' + filtered.length);
         // imdb id
         await oneByOneAsync(
