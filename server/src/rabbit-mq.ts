@@ -21,7 +21,7 @@ export async function rabbitMQ_connectQueueAsync() {
                         console.log('Rabbit MQ Data received :', `${Buffer.from(data.content)}`);
                         setTimeout(() => {
                             _channel.ack(data);
-                        }, 1000);
+                        }, 100);
                     }
                 },
                 { noAck: false },
