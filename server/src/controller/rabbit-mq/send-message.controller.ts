@@ -26,7 +26,13 @@ app.post(API_URL.api.rabbitMQ.sendMessage.toString(), async (req: IRequest, res:
 });
 
 export const sendMessageAsync = async (body: string): Promise<IQueryReturn<boolean>> => {
-    rabbitMQ_sendData(body);
+    const res = Array.from(Array(10).keys()).every(async (idx) => {
+        const [data] = await rabbitMQ_sendData({ key: idx });
+        return data;
+    });
 
-    return [true, undefined];
+    if (res) {
+        return [true, undefined];
+    }
+    return [, 'error'];
 };
