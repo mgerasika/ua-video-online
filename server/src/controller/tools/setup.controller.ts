@@ -373,16 +373,14 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
         await oneByOneAsync(
             shuffleArray(filtered),
             async (dbMovie) => {
-              
-
                 const [trs] = await dbService.rezkaMovieTranslation.getRezkaMovieTranslationAllAsync({
                     rezka_movie_id: dbMovie.id,
                 });
-                if (trs?.length && trs?.length > 0) {
+                if (trs?.length && trs?.length > 0 && trs[0].translation_id) {
                     return;
                 }
                 logs.push('imdbId', dbMovie.rezka_imdb_id);
-				const [parseItem, parserError] = await dbService.parser.getCypressRezkaStreamsAsync(dbMovie.href);
+                const [parseItem, parserError] = await dbService.parser.getCypressRezkaStreamsAsync(dbMovie.href);
                 if (parserError) {
                     logs.push(`parse cypress rezka stream error`);
                     //add empty translation relation

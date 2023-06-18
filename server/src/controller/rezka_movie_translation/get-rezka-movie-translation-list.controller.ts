@@ -31,7 +31,6 @@ export const getRezkaMovieTranslationAllAsync = async (query: IRequest['query'])
         if (query.translation_id) {
             qb.where('rezka_movie_translation.translation_id = :translation_id', { translation_id: query.translation_id });
 		}
-		qb.cache(true);
         return [await qb.getRawMany()];
     });
 };
