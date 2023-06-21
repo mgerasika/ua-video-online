@@ -5,7 +5,7 @@ import { ENV } from './env';
 let _connection: Connection;
 let _channel: Channel;
 const CHANNEL_NAME = 'ua-video-online-queue';
-export async function rabbitMQ_connectQueueAsync() {
+export async function rabbitMQ_connectQueueAsync(callback: (data: any) => Promise<any>) {
     try {
         _connection = await amqp.connect(ENV.rabbit_mq || '');
         if (_connection) {
@@ -19,10 +19,26 @@ export async function rabbitMQ_connectQueueAsync() {
                 CHANNEL_NAME,
                 (data: ConsumeMessage | null) => {
                     if (data) {
-                        console.log('Rabbit MQ Data received :', `${Buffer.from(data.content)}`);
-                        setTimeout(() => {
+                        const body = Buffer.from(data.content);
+                        console.log('Rabbit MQ Data received :', `${body}`);
+                        let obj;
+                        try {
+                            obj = JSON.parse(body.toString());
+                        } catch (ex) {
+                            console.log('error parse rabbit mq message', ex);
+                        }
+                        if (obj) {
+                            callback(obj)
+                                .then((res) => {
+                                    console.log('then', res);
+                                    _channel.ack(data);
+                                })
+                                .catch(() => {
+                                    _channel.ack(data);
+                                });
+                        } else {
                             _channel.ack(data);
-                        }, 100);
+                        }
                     }
                 },
                 { noAck: false },

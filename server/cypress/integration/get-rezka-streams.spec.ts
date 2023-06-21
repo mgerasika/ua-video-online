@@ -8,7 +8,9 @@ describe('get-rezka-stream', () => {
     it('get-stream', () => {
         const url =
 			Cypress.env('URL') ||
-			'https://rezka.ag/films/fiction/2738-v-znachit-vendetta-2006.html'
+			'https://rezka.ag/films/action/969-vlastelin-kolec-vozvraschenie-korolya-2003.html' ||
+            'https://rezka.ag/films/action/55691-bessmertnyy-2022.html' ||
+            'https://rezka.ag/films/fiction/2738-v-znachit-vendetta-2006.html' ||
             'https://rezka.ag/cartoons/fiction/17702-lego-supergeroi-dc-comics-liga-spravedlivosti-ataka-legiona-gibeli-2015.html' ||
             'https://rezka.ag/cartoons/fantasy/25701-tayna-koko-2017.html';
         cy.log('ENV', url);

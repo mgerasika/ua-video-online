@@ -16,7 +16,15 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const port = process.env.PORT || 8005;
-rabbitMQ_connectQueueAsync();
+rabbitMQ_connectQueueAsync((data) => {
+    if (data.id) {
+        return dbService.tools.setupAsync({
+            updateRezkaTranslationById: true,
+            updateRezkaTranslationByIdProps: { rezkaId: data.id },
+        });
+    }
+    return Promise.resolve('empty');
+});
 
 console.log('ENV = ', ENV);
 const server = app.listen(port, function () {

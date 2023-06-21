@@ -18,16 +18,21 @@ import { data } from 'cypress/types/jquery';
 import { ITranslationDto } from '@server/dto/translation.dto';
 import { IImdbResultResponse } from '../imdb/search-imdb.controller';
 import { ENV } from '@server/env';
+import { prop } from 'cheerio/lib/api/attributes';
 
 export interface ISetupBody {
-    searchImdb: boolean;
-    updateImdbUaName: boolean;
-    updateRezkaCartoon: boolean;
-    updateRezkaFilm: boolean;
-    updateRezkaImdbId: boolean;
-    updateRezkaTranslations: boolean;
-    addActorsFromMovieDb: boolean;
-    uploadActorPhotoToCdn: boolean;
+    searchImdb?: boolean;
+    updateImdbUaName?: boolean;
+    updateRezkaCartoon?: boolean;
+    updateRezkaFilm?: boolean;
+    updateRezkaImdbId?: boolean;
+    updateRezkaTranslations?: boolean;
+    updateRezkaTranslationById?: boolean;
+    addActorsFromMovieDb?: boolean;
+    uploadActorPhotoToCdn?: boolean;
+    updateRezkaTranslationByIdProps?: {
+        rezkaId: string;
+    };
 }
 
 interface IRequest extends IExpressRequest {
@@ -46,6 +51,7 @@ const schema = Joi.object<ISetupBody>({
     updateImdbUaName: Joi.boolean().required(),
     addActorsFromMovieDb: Joi.boolean().required(),
     uploadActorPhotoToCdn: Joi.boolean().required(),
+    updateRezkaTranslationById: Joi.boolean().required(),
     // rezkaType: Joi.string()
     //     .valid(...Object.values(ERezkaVideoType))
     //     .required(),
@@ -57,10 +63,10 @@ app.post(API_URL.api.tools.setup.toString(), async (req: IRequest, res: IRespons
         console.log('cancel request');
     });
 
-    const [, validateError] = validateSchema(schema, req.body);
-    if (validateError) {
-        return res.status(400).send(validateError);
-    }
+    // const [, validateError] = validateSchema(schema, req.body);
+    // if (validateError) {
+    //     return res.status(400).send(validateError);
+    // }
 
     const [logs, setupError] = await setupAsync(req.body);
     if (setupError) {
@@ -369,80 +375,89 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
 
         const filtered = dbMovies.filter((dbMovie) => dbMovie.rezka_imdb_id && dbMovie.rezka_imdb_id !== 'tt000000');
         logs.push('download streams for ' + filtered.length);
-        // imdb id
-        await oneByOneAsync(
-            shuffleArray(filtered),
-            async (dbMovie) => {
-                const [trs] = await dbService.rezkaMovieTranslation.getRezkaMovieTranslationAllAsync({
-                    rezka_movie_id: dbMovie.id,
-                });
-                if (trs?.length && trs?.length > 0 && trs[0].translation_id) {
-                    return;
-                }
+        await oneByOneAsync(filtered, async (dbMovie) => {
+            await dbService.rabbitMQ.sendMessageAsync({ id: dbMovie.id });
+            logs.push('start rabbit mq for ' + dbMovie.id);
+        });
+    }
 
-                logs.push('imdbId', dbMovie.rezka_imdb_id);
-                const [parseItem, parserError] = await dbService.parser.getCypressRezkaStreamsAsync(dbMovie.href);
-                if (parserError) {
-                    logs.push(`parse cypress rezka stream error`);
-                    return;
-                } else if (parseItem) {
-                    const allTranslations = parseItem.translations;
+    if (props.updateRezkaTranslationById) {
+        const rezkaId = props.updateRezkaTranslationByIdProps?.rezkaId;
+        logs.push('updateRezkaTranslationById rezkaId = ' + rezkaId);
+        if (!rezkaId) {
+            return [, 'rezkaId is empty'];
+        }
+        const [dbMovie] = await dbService.rezkaMovie.getRezkaMovieByIdAsync(rezkaId);
+        if (!dbMovie) {
+            return [, 'db movie not found ' + rezkaId];
+        }
+        logs.push('db movie = ' + dbMovie.href);
+        const [trs] = await dbService.rezkaMovieTranslation.getRezkaMovieTranslationAllAsync({
+            rezka_movie_id: dbMovie?.id,
+        });
+        if (trs?.length && trs?.length > 0 && trs[0].translation_id) {
+            logs.push('translation already exist');
+            return [logs.get(), undefined];
+        }
 
-                    logs.push(`parse cypress success translations = `, allTranslations.length);
-                    if (allTranslations.length === 0) {
-                        //add empty translation relation
-                    }
-                    await oneByOneAsync(
-                        allTranslations,
-                        async (translation) => {
-                            const [dbTranslation, dbTranslationError] = await dbService.translation.getTranslationByIdAsync(
-                                translation.data_translator_id.toString(),
-                            );
-                            logs.push('dbTranslation', dbTranslation);
+        logs.push('imdbId', dbMovie.rezka_imdb_id);
+        const [parseItem, parserError] = await dbService.parser.getCypressRezkaStreamsAsync(dbMovie.href);
+        if (parserError) {
+            logs.push(`parse cypress rezka stream error`);
+            return [logs.get(), undefined];
+        } else if (parseItem) {
+            const allTranslations = parseItem.translations;
 
-                            let currentTranslation: ITranslationDto | undefined = dbTranslation;
-                            if (dbTranslationError) {
-                                logs.push('dbTranslationError ' + translation.data_translator_id, dbTranslationError);
-                                const [postTranslation, postTranslationError] =
-                                    await dbService.translation.postTranslationAsync({
-                                        id: translation.data_translator_id,
-                                        label: translation.translation,
-                                    });
-                                if (postTranslationError) {
-                                    logs.push('post translation error', postTranslationError);
-                                } else if (postTranslation) {
-                                    logs.push('post translation success');
-                                    currentTranslation = postTranslation;
-                                }
-                            }
-
-                            // add relation
-                            if (currentTranslation) {
-                                //TODO find relation if need
-                                const [, postRelationError] =
-                                    await dbService.rezkaMovieTranslation.postRezkaMovieTranslationAsync({
-                                        rezka_movie_id: dbMovie.id,
-                                        translation_id: currentTranslation?.id || '',
-                                        data_ads: +translation.data_ads,
-                                        data_camrip: +translation.data_camrip,
-                                        data_director: +translation.data_director,
-                                    });
-
-                                if (postRelationError) {
-                                    logs.push('post relation error', postRelationError);
-                                } else {
-                                    logs.push('post relation success');
-                                }
-                            } else {
-                                logs.push('error, problem with post relation');
-                            }
-                        },
-                        { timeout: 0 },
+            logs.push(`parse cypress success translations = `, allTranslations.length);
+            if (allTranslations.length === 0) {
+                //add empty translation relation
+            }
+            await oneByOneAsync(
+                allTranslations,
+                async (translation) => {
+                    const [dbTranslation, dbTranslationError] = await dbService.translation.getTranslationByIdAsync(
+                        translation.data_translator_id.toString(),
                     );
-                }
-            },
-            { timeout: 0 },
-        );
+                    logs.push('dbTranslation', dbTranslation);
+
+                    let currentTranslation: ITranslationDto | undefined = dbTranslation;
+                    if (dbTranslationError) {
+                        logs.push('dbTranslationError ' + translation.data_translator_id, dbTranslationError);
+                        const [postTranslation, postTranslationError] = await dbService.translation.postTranslationAsync({
+                            id: translation.data_translator_id,
+                            label: translation.translation,
+                        });
+                        if (postTranslationError) {
+                            logs.push('post translation error', postTranslationError);
+                        } else if (postTranslation) {
+                            logs.push('post translation success');
+                            currentTranslation = postTranslation;
+                        }
+                    }
+
+                    // add relation
+                    if (currentTranslation) {
+                        //TODO find relation if need
+                        const [, postRelationError] = await dbService.rezkaMovieTranslation.postRezkaMovieTranslationAsync({
+                            rezka_movie_id: dbMovie.id,
+                            translation_id: currentTranslation?.id || '',
+                            data_ads: +translation.data_ads,
+                            data_camrip: +translation.data_camrip,
+                            data_director: +translation.data_director,
+                        });
+
+                        if (postRelationError) {
+                            logs.push('post relation error', postRelationError);
+                        } else {
+                            logs.push('post relation success');
+                        }
+                    } else {
+                        logs.push('error, problem with post relation');
+                    }
+                },
+                { timeout: 0 },
+            );
+        }
     }
 
     return [logs.get(), undefined];
