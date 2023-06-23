@@ -88,7 +88,7 @@ export const parseRezkaDetailsAsync = async (imdb_id: string): Promise<IQueryRet
                             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
                             Cookie: `SL_G_WPT_TO=en; SL_GWPT_Show_Hide_tmp=1; SL_wptGlobTipTmp=1; PHPSESSID=${phpSessionId}; dle_user_taken=1; dle_user_token=30f358e2681322bd118c71ab06481604; _ym_uid=1684426440709605085; _ym_d=1684426440; _ym_isad=1; _ym_hostIndex=0-3%2C1-0; _ym_visorc=b`,
                             Origin: 'https://rezka.ag',
-                            Referrer: 'https://rezka.ag/films/documentary/57420-neizmennyy-maykl-dzh-foks-2023.html',
+                            Referrer: href,
                             Host: 'rezka.ag',
                         },
                         data: postDataStr,
