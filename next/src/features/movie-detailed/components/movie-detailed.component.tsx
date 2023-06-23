@@ -222,7 +222,7 @@ export const MovieDetailed = ({
               <span css={styles.value}> {imdb_info?.jsonObj.Plot}</span>
             </p>
 
-            <p tw="pt-8  font-light text-sm">
+            {/* <p tw="pt-8  font-light text-sm">
               P.S. If you have any problems with stream, you can reload it on
               client side with &nbsp;
               <ul>
@@ -243,7 +243,7 @@ export const MovieDetailed = ({
                   </a>
                 </li>
               </ul>
-            </p>
+            </p> */}
           </div>
         </div>
       </div>

@@ -11,7 +11,10 @@ expressApp.get('/echo', (req, res) => {
     functions.logger.log('/echo api call ');
     res.send(JSON.stringify(dbService, null, 2));
 });
-rabbitMQ_connectQueueAsync();
+rabbitMQ_connectQueueAsync((data) => {
+    console.log(data);
+    return Promise.resolve('');
+});
 
 // Define your Express routes here
 export const app = functions.https.onRequest(expressApp);

@@ -614,3 +614,19 @@ export const API_URL = URL
 export const api = {
   ...createApiRequest(requestService),
 }
+
+export const apiFirebase = {
+  parserRezkaDetailsPost: (
+    body: IRezkaDetailsBody,
+  ): CustomPromise<
+    CustomAxiosResponse<
+      Array<IRezkaInfoByIdResponse>,
+      TParserRezkaDetailsPostError
+    >,
+    IBEError<TParserRezkaDetailsPostError>
+  > =>
+    requestService.post(
+      formatUrl(ENV.FIREBASE_SERVER_URL + `api/parser/rezka-details/`),
+      body,
+    ),
+}

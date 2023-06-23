@@ -373,7 +373,13 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
     if (props.updateRezkaTranslations) {
         const [dbMovies = []] = await dbService.rezkaMovie.getRezkaMoviesAllAsync({});
 
-        const filtered = dbMovies.filter((dbMovie) => dbMovie.rezka_imdb_id && dbMovie.rezka_imdb_id !== 'tt000000');
+        const [allTranslations] = await dbService.rezkaMovieTranslation.getRezkaMovieTranslationAllAsync({});
+        const filtered = dbMovies.filter(
+            (dbMovie) =>
+                dbMovie.rezka_imdb_id &&
+                dbMovie.rezka_imdb_id !== 'tt000000' &&
+                !allTranslations?.some((tr) => tr.rezka_movie_id === dbMovie.id),
+        );
         logs.push('download streams for ' + filtered.length);
         await oneByOneAsync(filtered, async (dbMovie) => {
             await dbService.rabbitMQ.sendMessageAsync({ id: dbMovie.id });
