@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { api } from '../../../api/api.generated'
+import { api, apiFirebase } from '../../../api/api.generated'
 import { useMutation } from '../../../hooks/use-mutation.hook'
 import { NextApiRequest, NextApiResponse } from 'next'
 import cacheData from 'memory-cache'
@@ -17,7 +17,9 @@ export default async function handler(
     res.status(200).json(value)
   } else {
     console.log('save to cache')
-    const response = await api.parserRezkaDetailsPost({ imdb_id: id || '' })
+    const response = await apiFirebase.parserRezkaDetailsPost({
+      imdb_id: id || '',
+    })
 
     const hours = 18
     const cacheInSeconds = hours * 60 * 60

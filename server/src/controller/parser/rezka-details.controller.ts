@@ -52,7 +52,16 @@ export const parseRezkaDetailsAsync = async (imdb_id: string): Promise<IQueryRet
     console.log('dbRelations', dbRelations);
 
     const href = dbMovie.length ? dbMovie[0].href : '';
-    const [rezkaResponse, rezkaError] = await toQuery(async () => await axios.get(href, REZKA_HEADERS));
+    const [rezkaResponse, rezkaError] = await toQuery(
+        async () =>
+            await axios.get(href, {
+                ...REZKA_HEADERS,
+                headers: {
+                    ...REZKA_HEADERS.headers,
+                    Cookie: 'SL_G_WPT_TO=en; SL_GWPT_Show_Hide_tmp=1; SL_wptGlobTipTmp=1; PHPSESSID=jr6gjjkc9f6sm0u098kve7mgqv; dle_user_taken=1; dle_user_token=ea6423749f2467cdb72a12e364f4f646; _ym_uid=168749214880430943; _ym_d=1687492148; _ym_isad=1; _ym_hostIndex=0-2%2C1-0; _ym_visorc=b',
+                },
+            }),
+    );
     if (rezkaError) {
         return [undefined, `request error ${href} ` + rezkaError];
     }
