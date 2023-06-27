@@ -15,7 +15,7 @@ import {
 import { ENV } from '../env'
 
 const API_SERVER_URL =
-  process.env.NODE_ENV === 'development' ? ENV.LOCAL : ENV.REMOTE_NGINX
+  process.env.NODE_ENV === 'development' ? ENV.LOCAL : ENV.REMOTE_IP
 
 // DON'T REMOVE THIS COMMENTS!!! Code between comments auto-generated
 // INSERT START
