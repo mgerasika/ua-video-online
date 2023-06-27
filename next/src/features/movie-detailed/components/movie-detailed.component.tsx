@@ -5,6 +5,7 @@ import {
   IImdbResponse,
   IResolutionItem,
   IRezkaMovieActorDto,
+  ITranslationResponse,
   api,
 } from '../../../api/api.generated'
 import { VideoPlayer } from './video-player.component'
@@ -16,23 +17,21 @@ import { SelectedButton } from '../../../general-ui/selected-button/selected-but
 import { ALL_LANG } from '../../movies/containers/movies.container'
 import { Link } from '../../../general-ui/link/link.component'
 
-export interface IVideoUrl {
-  encode_video_url: string | undefined
-  label: string
-}
 interface IProps {
-  video_urls: IVideoUrl[]
+  selected_translation_id: string
+  translations: ITranslationResponse[] | undefined
+  encode_video_url: string | undefined
   imdb_info: IImdbResponse | undefined
   actors: IRezkaMovieActorDto[] | undefined
-  onReloadV1: () => void
-  onReloadV2: () => void
+  onTranslationChange: (translationId: string) => void
 }
 export const MovieDetailed = ({
   imdb_info,
-  video_urls,
+  encode_video_url,
+  translations,
+  selected_translation_id,
   actors: all_actors,
-  onReloadV1,
-  onReloadV2,
+  onTranslationChange,
 }: IProps): JSX.Element => {
   const [playing, setPlaying] = useState(false)
   const [resolutionItems, setResolutionItems] = useState<IResolutionItem[]>()
@@ -43,25 +42,17 @@ export const MovieDetailed = ({
     setResolutionItems(resolutions)
   }, [])
 
-  const [selectedVideoUrl, setSelectedVideoUrl] = useState<IVideoUrl>()
-
   const writers = useMemo(() => all_actors?.filter(f => f.is_writer), [])
   const directors = useMemo(() => all_actors?.filter(f => f.is_director), [])
   const actors = useMemo(() => all_actors?.filter(f => f.is_actor), [])
 
   useEffect(() => {
-    if (video_urls.length) {
-      setSelectedVideoUrl(video_urls[0])
-    }
-  }, [video_urls])
-
-  useEffect(() => {
-    console.log('encode_video_url', selectedVideoUrl)
+    console.log('encode_video_url', encode_video_url)
     encodeFn({
-      encoded_video_url: selectedVideoUrl?.encode_video_url || '',
+      encoded_video_url: encode_video_url || '',
       callback: handleEncodeFinish,
     })
-  }, [selectedVideoUrl])
+  }, [encode_video_url])
 
   const streamUrl = useMemo(() => {
     if (resolutionItems?.length) {
@@ -132,7 +123,7 @@ export const MovieDetailed = ({
           <VideoPlayer
             onPlay={() => setPlaying(true)}
             imgSrc={imdb_info?.poster || ''}
-            url={streamUrl || ' '}
+            url={streamUrl }
           />
           {/* <img
               src={imdb_info?.poster || ''}
@@ -141,21 +132,15 @@ export const MovieDetailed = ({
             /> */}
 
           <div tw="px-4 pt-4 lg:p-0">
-            {video_urls.map((obj, index) => {
+            {translations?.map((obj, index) => {
               return (
-                <div
-                  key={obj.encode_video_url}
-                  tw="mr-2 my-1 float-left cursor-pointer"
-                >
+                <div key={obj.id} tw="mr-2 my-1 float-left cursor-pointer">
                   <SelectedButton
                     tw="float-left"
-                    selected={
-                      obj.encode_video_url ===
-                      selectedVideoUrl?.encode_video_url
-                    }
+                    selected={obj.id === selected_translation_id}
                     name={obj.label}
                     title={obj.label}
-                    onChange={() => setSelectedVideoUrl(obj)}
+                    onChange={() => onTranslationChange(obj.id)}
                   />
                   <div tw="clear-both"></div>
                 </div>

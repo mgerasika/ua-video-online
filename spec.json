@@ -856,44 +856,7 @@
         }
       }
     },
-    "api/rezka-movie/": {
-      "get": {
-        "operationId": "",
-        "summary": "",
-        "parameters": [
-          {
-            "name": "imdb_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/IRezkaMovieResponse"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ void"
-                }
-              }
-            }
-          }
-        }
-      },
+    "api/rabbit-m-q/send-message/": {
       "post": {
         "operationId": "",
         "summary": "",
@@ -903,7 +866,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/IPostRezkaMovieBody"
+                "type": "any"
               }
             }
           }
@@ -913,10 +876,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/IRezkaMovieResponse"
-                  }
+                  "type": "string[]"
                 }
               }
             }
@@ -934,6 +894,40 @@
       }
     },
     "api/rezka-movie/{id}": {
+      "get": {
+        "operationId": "",
+        "summary": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IRezkaMovieResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ void"
+                }
+              }
+            }
+          }
+        }
+      },
       "delete": {
         "operationId": "",
         "summary": "",
@@ -956,40 +950,6 @@
                   "items": {
                     "$ref": "#/components/schemas/IRezkaMovieResponse"
                   }
-                }
-              }
-            }
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ void"
-                }
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "operationId": "",
-        "summary": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IRezkaMovieResponse"
                 }
               }
             }
@@ -1034,6 +994,83 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/IRezkaMovieResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ void"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "api/rezka-movie/": {
+      "post": {
+        "operationId": "",
+        "summary": "",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IPostRezkaMovieBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IRezkaMovieResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ void"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "",
+        "summary": "",
+        "parameters": [
+          {
+            "name": "imdb_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IRezkaMovieResponse"
+                  }
                 }
               }
             }
@@ -1182,6 +1219,123 @@
         }
       }
     },
+    "api/translation/{id}": {
+      "get": {
+        "operationId": "",
+        "summary": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ITranslationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ void"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "",
+        "summary": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IPutTranslationBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ITranslationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ void"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "",
+        "summary": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ITranslationResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ void"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "api/translation/": {
       "get": {
         "operationId": "",
@@ -1280,123 +1434,6 @@
               "application/json": {
                 "schema": {
                   "type": "string[]"
-                }
-              }
-            }
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ void"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "api/translation/{id}": {
-      "get": {
-        "operationId": "",
-        "summary": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ITranslationResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ void"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "operationId": "",
-        "summary": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ITranslationResponse"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ void"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "operationId": "",
-        "summary": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IPutTranslationBody"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ITranslationResponse"
                 }
               }
             }
@@ -1955,6 +1992,9 @@
         "properties": {
           "imdb_id": {
             "type": "string"
+          },
+          "translation_id": {
+            "type": "string"
           }
         }
       },
@@ -2125,16 +2165,7 @@
       },
       "ISetupBody": {
         "type": "object",
-        "required": [
-          "searchImdb",
-          "updateImdbUaName",
-          "updateRezkaCartoon",
-          "updateRezkaFilm",
-          "updateRezkaImdbId",
-          "updateRezkaTranslations",
-          "addActorsFromMovieDb",
-          "uploadActorPhotoToCdn"
-        ],
+        "required": [],
         "properties": {
           "searchImdb": {
             "type": "boolean"
@@ -2154,11 +2185,25 @@
           "updateRezkaTranslations": {
             "type": "boolean"
           },
+          "updateRezkaTranslationById": {
+            "type": "boolean"
+          },
           "addActorsFromMovieDb": {
             "type": "boolean"
           },
           "uploadActorPhotoToCdn": {
             "type": "boolean"
+          },
+          "updateRezkaTranslationByIdProps": {
+            "type": "object",
+            "required": [
+              "rezkaId"
+            ],
+            "properties": {
+              "rezkaId": {
+                "type": "string"
+              }
+            }
           }
         }
       },

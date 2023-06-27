@@ -11,5 +11,8 @@
         "public": "dist",
         "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
         "rewrites": [{ "source": "**", "function": "app" }]
-    }
+    },
+	"frameworksBackend": {
+		"region": "europe-west1"
+	  }
 }

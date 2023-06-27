@@ -18,7 +18,7 @@ app.use((err: any, req: any, res: any, next: any) => {
         return next(err);
     }
     res.status(500);
-    res.render('error', { error: err });
+    res.render('custom error', { error: err });
 });
 app.use(function (err: any, req: any, res: any, next: any) {
     if (err) {

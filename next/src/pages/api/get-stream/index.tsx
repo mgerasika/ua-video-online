@@ -4,11 +4,15 @@ import { useMutation } from '../../../hooks/use-mutation.hook'
 import { NextApiRequest, NextApiResponse } from 'next'
 import cacheData from 'memory-cache'
 
+interface INextApiBody {
+  imdb_id?: string
+  translation_id?: string
+}
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  const id = req.url?.split('/').pop()
+  const id = `${req.query?.imdb_id}-${req.query?.translation_id}`
   console.log('id', id)
 
   const value = cacheData.get(id)
@@ -17,8 +21,9 @@ export default async function handler(
     res.status(200).json(value)
   } else {
     console.log('save to cache')
-    const response = await apiFirebase.parserRezkaDetailsPost({
-      imdb_id: id || '',
+    const response = await api.parserRezkaDetailsPost({
+      imdb_id: req.query.imdb_id as string || '',
+      translation_id: req.query.translation_id as string || '',
     })
 
     const hours = 18

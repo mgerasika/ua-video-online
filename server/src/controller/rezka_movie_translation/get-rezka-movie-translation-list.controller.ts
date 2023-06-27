@@ -2,6 +2,8 @@ import { IExpressRequest, IExpressResponse, app } from '@server/express-app';
 import { typeOrmAsync } from '@server/utils/type-orm-async.util';
 import { API_URL } from '@server/constants/api-url.constant';
 import { IRezkaMovieTranslationDto, RezkaMovieTranslationDto } from '@server/dto/rezka_movie_translation.dto';
+import { sqlAsync } from '@server/utils/sql-async.util';
+import { sql_and, sql_where } from '@server/utils/sql.util';
 
 export interface IRezkaMovieTranslationResponse extends IRezkaMovieTranslationDto {}
 
@@ -23,14 +25,13 @@ app.get(API_URL.api.rezkaMovieTranslation.toString(), async (req: IRequest, res:
 });
 
 export const getRezkaMovieTranslationAllAsync = async (query: IRequest['query']) => {
-    return typeOrmAsync<RezkaMovieTranslationDto[]>(async (client) => {
-        const qb = client.getRepository(RezkaMovieTranslationDto).createQueryBuilder('rezka_movie_translation').select('*');
-        if (query.rezka_movie_id) {
-            qb.where('rezka_movie_translation.rezka_movie_id = :rezka_movie_id', { rezka_movie_id: query.rezka_movie_id });
-        }
-        if (query.translation_id) {
-            qb.where('rezka_movie_translation.translation_id = :translation_id', { translation_id: query.translation_id });
-		}
-        return [await qb.getRawMany()];
-    });
+    return await sqlAsync<(IRezkaMovieTranslationResponse )[]>(async (client) => {
+        const { rows } = await client.query(`SELECT * FROM public.rezka_movie_translation
+	   where rezka_movie_translation.rezka_movie_id is not null
+	   ${sql_and('rezka_movie_translation.rezka_movie_id', query.rezka_movie_id)}
+	   ${sql_and('rezka_movie_translation.translation_id', query.translation_id)}
+	   `);
+		
+		return rows;
+	});
 };

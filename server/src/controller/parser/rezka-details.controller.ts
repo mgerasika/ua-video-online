@@ -16,6 +16,7 @@ export interface IRezkaInfoByIdResponse {
 
 interface IRezkaDetailsBody {
     imdb_id: string;
+    translation_id?: string;
 }
 interface IRequest extends IExpressRequest {
     body: IRezkaDetailsBody;
@@ -24,15 +25,15 @@ interface IRequest extends IExpressRequest {
 interface IResponse extends IExpressResponse<IRezkaInfoByIdResponse[], void> {}
 
 app.post(API_URL.api.parser.rezkaDetails.toString(), async (req: IRequest, res: IResponse) => {
-    const [data, error] = await parseRezkaDetailsAsync(req.body.imdb_id);
+    const [data, error] = await parseRezkaDetailsAsync(req.body);
     if (error) {
         return res.status(400).send(error);
     }
     return res.send(data);
 });
 
-export const parseRezkaDetailsAsync = async (imdb_id: string): Promise<IQueryReturn<IRezkaInfoByIdResponse[]>> => {
-    const [dbMovie, dbMovieError] = await dbService.rezkaMovie.getRezkaMoviesAllAsync({ imdb_id });
+export const parseRezkaDetailsAsync = async (body: IRezkaDetailsBody): Promise<IQueryReturn<IRezkaInfoByIdResponse[]>> => {
+    const [dbMovie, dbMovieError] = await dbService.rezkaMovie.getRezkaMoviesAllAsync({ imdb_id:body.imdb_id });
     if (dbMovieError) {
         return [undefined, 'dbError ' + dbMovieError];
     }
@@ -41,7 +42,8 @@ export const parseRezkaDetailsAsync = async (imdb_id: string): Promise<IQueryRet
     }
 
     const [dbRelations, dbRelationsError] = await dbService.rezkaMovieTranslation.getRezkaMovieTranslationAllAsync({
-        rezka_movie_id: dbMovie[0].id,
+		rezka_movie_id: dbMovie[0].id,
+		translation_id: body.translation_id
     });
     if (dbRelationsError) {
         return [undefined, 'dbRelationsError ' + dbRelationsError];

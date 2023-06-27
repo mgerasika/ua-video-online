@@ -18,10 +18,17 @@ interface IProps {
   imdb_info: IImdbResponse | undefined
   rezka_movie_href: string | undefined
   actors: IRezkaMovieActorDto[] | undefined
+  translations: ITranslationResponse[] | undefined
 }
-export default function Movie({ imdb_info, rezka_movie_href, actors }: IProps) {
+export default function Movie({
+  imdb_info,
+  rezka_movie_href,
+  actors,
+  translations,
+}: IProps) {
   return (
     <MovieDetailedContainer
+      translations={translations}
       actors={actors}
       rezka_movie_href={rezka_movie_href}
       imdb_info={imdb_info}
@@ -37,9 +44,13 @@ export async function getStaticProps({
   props: IProps
 }> {
   const [groupMovie] = await toQuery(() => api.groupMovieIdGet(params.id))
+  const [translations] = await toQuery(() =>
+    api.translationGet({ imdb_id: params.id }),
+  )
 
   return {
     props: {
+      translations: translations || [],
       rezka_movie_href: groupMovie?.rezka_movie_href,
       imdb_info: groupMovie?.imdb_info,
       actors: groupMovie?.actors || [],
