@@ -1,4 +1,4 @@
-FROM cypress/base:14.15.0
+FROM cypress/base:16.17.0
 
 ARG PORT
 COPY . .

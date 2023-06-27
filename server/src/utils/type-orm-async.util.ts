@@ -18,7 +18,7 @@ const getDataSource = (): DataSource => {
     _dataSource = new DataSource({
         type: 'postgres',
         username: IS_DEBUG ? ENV.owner_user : ENV.user,
-        host: ENV.host,
+        host: ENV.db_host,
         database: ENV.database,
         password: IS_DEBUG ? ENV.owner_password : ENV.password,
         port: ENV.port,

@@ -10,7 +10,7 @@ const getPool = (): typeof Pool => {
     }
     _pool = new Pool({
         user: ENV.user,
-        host: ENV.host,
+        host: ENV.db_host,
         database: ENV.database,
         password: ENV.password,
         port: ENV.port,
