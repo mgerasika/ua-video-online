@@ -9,7 +9,7 @@ import { validateSchema } from '@server/utils/validate-schema.util';
 
 const START_PAGE = 1;
 const END_PAGE = 2500;
-const TIMEOUT = 5000;
+const TIMEOUT = 5 * 1000;
 const cheerio = require('cheerio');
 
 export interface IRezkaInfoResponse {
@@ -46,12 +46,14 @@ app.post(API_URL.api.parser.rezkaAll.toString(), async (req: IRequest, res: IRes
 
 export const parseRezkaAllPagesAsync = async ({
     type,
+    subType,
 }: {
     type: ERezkaVideoType;
+    subType?: string;
 }): Promise<IQueryReturn<IRezkaInfoResponse[]>> => {
     const allHurtomItems: IRezkaInfoResponse[] = [];
     const fnAsync: any = async (page: number) => {
-        const [hurtomItems, error] = await getRezkaPageAsync(page, type);
+        const [hurtomItems, error] = await getRezkaPageAsync(page, type, subType);
         if (hurtomItems) {
             allHurtomItems.push(hurtomItems as unknown as IRezkaInfoResponse);
             // cancel all
@@ -59,6 +61,7 @@ export const parseRezkaAllPagesAsync = async ({
             return await new Promise((resolve, reject) => {
                 setTimeout(async () => {
                     const res = await fnAsync(++page);
+                   
                     if (res[0]) {
                         resolve(res);
                     } else {
@@ -96,17 +99,21 @@ export const REZKA_HEADERS = {
     headers: {
         'User-Agent':
             'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
-		Host: 'rezka.ag',
-		'Sec-Ch-Ua':'Not.A/Brand";v="8", "Chromium";v="114", "Google Chrome";v="114',
-        
+        Host: 'rezka.ag',
+        'Sec-Ch-Ua': 'Not.A/Brand";v="8", "Chromium";v="114", "Google Chrome";v="114',
+
         accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
         // cookie: 'SL_G_WPT_TO=en; SL_GWPT_Show_Hide_tmp=1; SL_wptGlobTipTmp=1; PHPSESSID=3p8hdhuc1f2k5m295ao64qat13; dle_user_taken=1; dle_user_token=30f358e2681322bd118c71ab06481604; _ym_uid=1684426440709605085; _ym_d=1684426440; _ym_isad=1; _ym_hostIndex=0-2%2C1-0; _ym_visorc=b',
     },
 };
 
 const YEAR_REGEXP = /\((\d{4})\)/;
-const getRezkaPageAsync = async (page: any, type: ERezkaVideoType): Promise<IQueryReturn<IRezkaInfoResponse[]>> => {
-    const url = `https://rezka.ag/${type}s/page/${page}`;
+const getRezkaPageAsync = async (
+    page: any,
+    type: ERezkaVideoType,
+    subType?: string,
+): Promise<IQueryReturn<IRezkaInfoResponse[]>> => {
+    const url = subType ? `https://rezka.ag/${type}s/${subType}/page/${page}` : `https://rezka.ag/${type}s/page/${page}`;
     console.log('request url = ' + url);
     const [response, error] = await toQuery(() => axios.get(url, REZKA_HEADERS));
     if (error || page == END_PAGE) {

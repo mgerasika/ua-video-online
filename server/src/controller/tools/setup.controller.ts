@@ -8,7 +8,7 @@ import { validateSchema } from '@server/utils/validate-schema.util';
 import { createLogs } from '@server/utils/create-logs.utils';
 import { oneByOneAsync } from '@server/utils/one-by-one-async.util';
 import { IQueryReturn } from '@server/utils/to-query.util';
-import { ERezkaVideoType, RezkaMovieDto } from '@server/dto/rezka-movie.dto';
+import { ECartoonSubCategory, EFilmSubCategory, ERezkaVideoType, RezkaMovieDto } from '@server/dto/rezka-movie.dto';
 import { EResolution } from '@server/enum/resolution.enum';
 import { ETranslation } from '@server/enum/translation.enum';
 import { ImdbDto } from '@server/dto/imdb.dto';
@@ -19,6 +19,7 @@ import { ITranslationDto } from '@server/dto/translation.dto';
 import { IImdbResultResponse } from '../imdb/search-imdb.controller';
 import { ENV } from '@server/env';
 import { prop } from 'cheerio/lib/api/attributes';
+import { IRezkaInfoResponse } from '../parser/rezka-all.controller';
 
 export interface ISetupBody {
     searchImdb?: boolean;
@@ -113,16 +114,20 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
     }
 
     if (props.updateRezkaCartoon) {
-        const [parseItems = [], parserError] = await dbService.parser.parseRezkaAllPagesAsync({
-            type: ERezkaVideoType.cartoon,
+        let parseItems: IRezkaInfoResponse[] = [];
+        await oneByOneAsync(shuffleArray(Object.values(ECartoonSubCategory)), async (subCategory) => {
+            const [subParseItems = [], parserError] = await dbService.parser.parseRezkaAllPagesAsync({
+                type: ERezkaVideoType.cartoon,
+                subType: subCategory,
+            });
+            if (parserError) {
+                logs.push(`rezka items has some error`, parserError);
+            }
+            logs.push(`rezka items return success count=${parseItems?.length}`);
+            parseItems = [...subParseItems];
         });
-        if (parserError) {
-            logs.push(`rezka items has some error`, parserError);
-        }
-        logs.push(`rezka items return success count=${parseItems?.length}`);
-
         await oneByOneAsync(
-            parseItems,
+            shuffleArray(parseItems),
             async (parseItem) => {
                 const dbMovie = dbMovies?.find((movie) => movie.href === parseItem.href);
                 if (!dbMovie) {
@@ -143,16 +148,21 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
         );
     }
     if (props.updateRezkaFilm) {
-        const [parseItems = [], parserError] = await dbService.parser.parseRezkaAllPagesAsync({
-            type: ERezkaVideoType.film,
+        let parseItems: IRezkaInfoResponse[] = [];
+        await oneByOneAsync(shuffleArray(Object.values(EFilmSubCategory)), async (subCategory) => {
+            const [subParseItems = [], parserError] = await dbService.parser.parseRezkaAllPagesAsync({
+                type: ERezkaVideoType.film,
+                subType: subCategory,
+            });
+            if (parserError) {
+                logs.push(`rezka items has some error`, parserError);
+            }
+            logs.push(`rezka items return success count=${parseItems?.length}`);
+            parseItems = [...subParseItems];
         });
-        if (parserError) {
-            logs.push(`rezka items has some error`, parserError);
-        }
-        logs.push(`rezka items return success count=${parseItems?.length}`);
 
         await oneByOneAsync(
-            parseItems,
+            shuffleArray(parseItems),
             async (parseItem) => {
                 const dbMovie = dbMovies?.find((movie) => movie.href === parseItem.href);
                 if (!dbMovie) {
