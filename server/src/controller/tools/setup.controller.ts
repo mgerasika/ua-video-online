@@ -114,9 +114,8 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
     }
 
     if (props.updateRezkaCartoon) {
-        let parseItems: IRezkaInfoResponse[] = [];
         await oneByOneAsync(shuffleArray(Object.values(ECartoonSubCategory)), async (subCategory) => {
-            const [subParseItems = [], parserError] = await dbService.parser.parseRezkaAllPagesAsync({
+            const [parseItems = [], parserError] = await dbService.parser.parseRezkaAllPagesAsync({
                 type: ERezkaVideoType.cartoon,
                 subType: subCategory,
             });
@@ -124,33 +123,32 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
                 logs.push(`rezka items has some error`, parserError);
             }
             logs.push(`rezka items return success count=${parseItems?.length}`);
-            parseItems = [...subParseItems];
-        });
-        await oneByOneAsync(
-            shuffleArray(parseItems),
-            async (parseItem) => {
-                const dbMovie = dbMovies?.find((movie) => movie.href === parseItem.href);
-                if (!dbMovie) {
-                    const [, postError] = await dbService.rezkaMovie.postRezkaMovieAsync({
-                        href: parseItem.href,
-                        en_name: '',
-                        year: parseItem.year,
-                        video_type: ERezkaVideoType.cartoon,
-                        rezka_imdb_id: null as unknown as string,
-                    });
-                    if (postError) {
-                        return logs.push(`post rezka movie error ${parseItem.url_id} error=${postError}`);
+
+            await oneByOneAsync(
+                shuffleArray(parseItems),
+                async (parseItem) => {
+                    const dbMovie = dbMovies?.find((movie) => movie.href === parseItem.href);
+                    if (!dbMovie) {
+                        const [, postError] = await dbService.rezkaMovie.postRezkaMovieAsync({
+                            href: parseItem.href,
+                            en_name: '',
+                            year: parseItem.year,
+                            video_type: ERezkaVideoType.cartoon,
+                            rezka_imdb_id: null as unknown as string,
+                        });
+                        if (postError) {
+                            return logs.push(`post rezka movie error ${parseItem.url_id} error=${postError}`);
+                        }
+                        logs.push(`post rezka movie success ${parseItem.url_id} `);
                     }
-                    logs.push(`post rezka movie success ${parseItem.url_id} `);
-                }
-            },
-            { timeout: 0 },
-        );
+                },
+                { timeout: 0 },
+            );
+        });
     }
     if (props.updateRezkaFilm) {
-        let parseItems: IRezkaInfoResponse[] = [];
         await oneByOneAsync(shuffleArray(Object.values(EFilmSubCategory)), async (subCategory) => {
-            const [subParseItems = [], parserError] = await dbService.parser.parseRezkaAllPagesAsync({
+            const [parseItems = [], parserError] = await dbService.parser.parseRezkaAllPagesAsync({
                 type: ERezkaVideoType.film,
                 subType: subCategory,
             });
@@ -158,29 +156,28 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
                 logs.push(`rezka items has some error`, parserError);
             }
             logs.push(`rezka items return success count=${parseItems?.length}`);
-            parseItems = [...subParseItems];
-        });
 
-        await oneByOneAsync(
-            shuffleArray(parseItems),
-            async (parseItem) => {
-                const dbMovie = dbMovies?.find((movie) => movie.href === parseItem.href);
-                if (!dbMovie) {
-                    const [, postError] = await dbService.rezkaMovie.postRezkaMovieAsync({
-                        href: parseItem.href,
-                        en_name: '',
-                        year: parseItem.year,
-                        video_type: ERezkaVideoType.film,
-                        rezka_imdb_id: null as unknown as string,
-                    });
-                    if (postError) {
-                        return logs.push(`post rezka movie error ${parseItem.url_id} error=${postError}`);
+            await oneByOneAsync(
+                shuffleArray(parseItems),
+                async (parseItem) => {
+                    const dbMovie = dbMovies?.find((movie) => movie.href === parseItem.href);
+                    if (!dbMovie) {
+                        const [, postError] = await dbService.rezkaMovie.postRezkaMovieAsync({
+                            href: parseItem.href,
+                            en_name: '',
+                            year: parseItem.year,
+                            video_type: ERezkaVideoType.film,
+                            rezka_imdb_id: null as unknown as string,
+                        });
+                        if (postError) {
+                            return logs.push(`post rezka movie error ${parseItem.url_id} error=${postError}`);
+                        }
+                        logs.push(`post rezka movie success ${parseItem.url_id} `);
                     }
-                    logs.push(`post rezka movie success ${parseItem.url_id} `);
-                }
-            },
-            { timeout: 0 },
-        );
+                },
+                { timeout: 0 },
+            );
+        });
     }
 
     if (props.updateRezkaImdbId) {
