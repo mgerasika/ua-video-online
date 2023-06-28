@@ -8,3 +8,5 @@ docker push mgerasika/ua-video-online-server:v4
 docker pull mgerasika/ua-video-online-server:v2
 docker run --network=host --restart=always --env PORT=8008 -v /home:/home -d -p $port:8008 --env-file=.env --name ua-video-online mgerasika/ua-video-online-server:v3
 docker run --network=host --restart=always --env PORT=8008 -v /home:/home -d -p $port:8008 --env-file=/home/nuc8/git/ua-video-online/server/.env --name ua-video-online mgerasika/ua-video-online-server:v4
+
+docker run --network=host --restart=always --env PORT=8008 -v /home:/home -d -p $port:8008 --env-file=/home/nuc7/git/ua-video-online/server/.env --name ua-video-online mgerasika/ua-video-online-server:v4
