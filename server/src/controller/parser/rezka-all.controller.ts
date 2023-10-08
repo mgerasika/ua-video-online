@@ -37,23 +37,18 @@ app.post(API_URL.api.parser.rezkaAll.toString(), async (req: IRequest, res: IRes
         return res.status(400).send(validateError);
     }
 
-    const [data, error] = await parseRezkaAllPagesAsync({ type: req.query.type });
+	const url = '';
+    const [data, error] = await parseRezkaAllPagesAsync({ url });
     if (error) {
         return res.status(400).send(error);
     }
     return res.send(data);
 });
 
-export const parseRezkaAllPagesAsync = async ({
-    type,
-    subType,
-}: {
-    type: ERezkaVideoType;
-    subType?: string;
-}): Promise<IQueryReturn<IRezkaInfoResponse[]>> => {
+export const parseRezkaAllPagesAsync = async ({ url }: { url: string }): Promise<IQueryReturn<IRezkaInfoResponse[]>> => {
     const allHurtomItems: IRezkaInfoResponse[] = [];
     const fnAsync: any = async (page: number) => {
-        const [hurtomItems, error] = await getRezkaPageAsync(page, type, subType);
+        const [hurtomItems, error] = await getRezkaPageAsync(page, url);
         if (hurtomItems) {
             allHurtomItems.push(hurtomItems as unknown as IRezkaInfoResponse);
             // cancel all
@@ -61,7 +56,7 @@ export const parseRezkaAllPagesAsync = async ({
             return await new Promise((resolve, reject) => {
                 setTimeout(async () => {
                     const res = await fnAsync(++page);
-                   
+
                     if (res[0]) {
                         resolve(res);
                     } else {
@@ -110,12 +105,11 @@ export const REZKA_HEADERS = {
 const YEAR_REGEXP = /\((\d{4})\)/;
 const getRezkaPageAsync = async (
     page: any,
-    type: ERezkaVideoType,
-    subType?: string,
+    url:string
 ): Promise<IQueryReturn<IRezkaInfoResponse[]>> => {
-    const url = subType ? `https://rezka.ag/${type}s/${subType}/page/${page}` : `https://rezka.ag/${type}s/page/${page}`;
-    console.log('request url = ' + url);
-    const [response, error] = await toQuery(() => axios.get(url, REZKA_HEADERS));
+	const urlWithPage = `${url}/page/${page}`;
+    console.log('request url = ' + urlWithPage);
+    const [response, error] = await toQuery(() => axios.get(urlWithPage, REZKA_HEADERS));
     if (error || page == END_PAGE) {
         return [undefined, error || 'custom error - end page limit'];
     }
