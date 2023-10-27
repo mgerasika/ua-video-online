@@ -9,7 +9,7 @@ import { validateSchema } from '@server/utils/validate-schema.util';
 
 const START_PAGE = 1;
 const END_PAGE = 2500;
-const TIMEOUT = 5 * 1000;
+const TIMEOUT = 10 * 1000;
 const cheerio = require('cheerio');
 
 export interface IRezkaInfoResponse {

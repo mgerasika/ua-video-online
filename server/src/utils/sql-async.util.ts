@@ -21,11 +21,23 @@ const getPool = (): typeof Pool => {
     return _pool;
 };
 
+class ClientAdapter {
+	_original = {} as any;
+	constructor(client: any) {
+		this._original = client;
+	}
+
+	query(sql: string) {
+		console.log('sql=' + sql)
+		return this._original.query(sql);
+	}
+}
+
 export async function sqlAsync<T>(callback: (client: any) => Promise<T>): Promise<IQueryReturn<T>> {
     let client;
     try {
         client = await getPool().connect();
-        const data = (await callback(client)) as T;
+        const data = (await callback(new ClientAdapter(client))) as T;
         client?.release();
         return [data];
     } catch (ex) {

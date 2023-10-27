@@ -18,7 +18,7 @@ interface IApiUrl {
             id: (id?: string) => IUrlItem;
         };
         rezkaMovie: {
-            searchRezkaWithoutStream: IUrlItem;
+            search: IUrlItem;
 
             id: (id?: string) => IUrlItem;
         };
@@ -61,7 +61,7 @@ export const API_URL = createUrls<IApiUrl>({
             sendMessage: EMPTY_URL_ITEM,
         },
         rezkaMovie: {
-            searchRezkaWithoutStream: EMPTY_URL_ITEM,
+            search: EMPTY_URL_ITEM,
             id: (id?: string) => EMPTY_URL_ITEM,
         },
         rezkaMovieTranslation: EMPTY_URL_ITEM,
