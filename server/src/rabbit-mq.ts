@@ -1,11 +1,12 @@
 import amqp, { Channel, Connection, ConsumeMessage } from 'amqplib';
 import { IQueryReturn } from './utils/to-query.util';
 import { ENV } from './env';
+import { IRabbitMqMessage } from './interfaces/rabbit-mq-message.interface';
 
 let _connection: Connection;
 let _channel: Channel;
 const CHANNEL_NAME = 'ua-video-online-queue';
-export async function rabbitMQ_connectQueueAsync(callback: (data: any) => Promise<any>) {
+export async function rabbitMQ_connectQueueAsync(callback: (data: IRabbitMqMessage) => Promise<any>) {
     try {
         _connection = await amqp.connect(ENV.rabbit_mq || '');
         if (_connection) {
@@ -30,7 +31,7 @@ export async function rabbitMQ_connectQueueAsync(callback: (data: any) => Promis
                         if (obj) {
                             callback(obj)
                                 .then((res) => {
-                                    console.log('then', res);
+                                    console.log('rabbit mq response = ', res);
                                     _channel.ack(data);
                                 })
                                 .catch(() => {
@@ -51,7 +52,8 @@ export async function rabbitMQ_connectQueueAsync(callback: (data: any) => Promis
     }
 }
 
-export const rabbitMQ_sendData = async (data: any): Promise<IQueryReturn<boolean>> => {
+
+export const rabbitMQ_sendData = async (data: IRabbitMqMessage): Promise<IQueryReturn<boolean>> => {
     if (_channel) {
         await _channel.sendToQueue(CHANNEL_NAME, Buffer.from(JSON.stringify(data)));
         return [true];

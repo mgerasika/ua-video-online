@@ -10,6 +10,7 @@ import { oneByOneAsync } from '@server/utils/one-by-one-async.util';
 import { IQueryReturn } from '@server/utils/to-query.util';
 import axios from 'axios';
 import { rabbitMQ_sendData } from '@server/rabbit-mq';
+import { IRabbitMqMessage } from '@server/interfaces/rabbit-mq-message.interface';
 
 interface IRequest extends IExpressRequest {
     body: any;
@@ -25,9 +26,8 @@ app.post(API_URL.api.rabbitMQ.sendMessage.toString(), async (req: IRequest, res:
     return res.send(logs);
 });
 
-export const sendMessageAsync = async (body: any): Promise<IQueryReturn<boolean>> => {
-    const { id } = body;
-    if (id) {
+export const sendMessageAsync = async (body: IRabbitMqMessage): Promise<IQueryReturn<boolean>> => {
+    if (body) {
         return await rabbitMQ_sendData(body);
     }
 

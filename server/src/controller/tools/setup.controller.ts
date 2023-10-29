@@ -24,15 +24,17 @@ import { IRezkaInfoResponse } from '../parser/rezka-all.controller';
 export interface ISetupBody {
     searchImdb?: boolean;
     updateImdbUaName?: boolean;
-	updateRezkaNewCartoon?: boolean;
-	updateRezkaNewFilms?: boolean; 
+    updateRezkaNewCartoon?: boolean;
+    updateRezkaNewFilms?: boolean;
     updateRezkaCartoon?: boolean;
     updateRezkaFilm?: boolean;
-    updateRezkaImdbId?: boolean;
-    updateRezkaTranslations?: boolean;
-    updateRezkaTranslationById?: boolean;
+
     addActorsFromMovieDb?: boolean;
     uploadActorPhotoToCdn?: boolean;
+
+    updateRezkaImdbIdProps?: {
+        rezkaId: string;
+    };
     updateRezkaTranslationByIdProps?: {
         rezkaId: string;
     };
@@ -46,20 +48,17 @@ interface IResponse extends IExpressResponse<string[], void> {}
 
 const schema = Joi.object<ISetupBody>({
     searchImdb: Joi.boolean().required(),
-
     updateRezkaCartoon: Joi.boolean().required(),
     updateRezkaFilm: Joi.boolean().required(),
-    updateRezkaImdbId: Joi.boolean().required(),
-    updateRezkaTranslations: Joi.boolean().required(),
+
     updateImdbUaName: Joi.boolean().required(),
     addActorsFromMovieDb: Joi.boolean().required(),
     uploadActorPhotoToCdn: Joi.boolean().required(),
-    updateRezkaTranslationById: Joi.boolean().required(),
-	updateRezkaNewCartoon: Joi.boolean().required(),
-	updateRezkaNewFilms: Joi.boolean().required(),
-    // rezkaType: Joi.string()
-    //     .valid(...Object.values(ERezkaVideoType))
-    //     .required(),
+    updateRezkaNewCartoon: Joi.boolean().required(),
+    updateRezkaNewFilms: Joi.boolean().required(),
+
+    updateRezkaImdbIdProps: Joi.object(),
+    updateRezkaTranslationByIdProps: Joi.object(),
 });
 
 app.post(API_URL.api.tools.setup.toString(), async (req: IRequest, res: IResponse) => {
@@ -68,10 +67,10 @@ app.post(API_URL.api.tools.setup.toString(), async (req: IRequest, res: IRespons
         console.log('cancel request');
     });
 
-    // const [, validateError] = validateSchema(schema, req.body);
-    // if (validateError) {
-    //     return res.status(400).send(validateError);
-    // }
+    const [, validateError] = validateSchema(schema, req.body);
+    if (validateError) {
+        return res.status(400).send(validateError);
+    }
 
     const [logs, setupError] = await setupAsync(req.body);
     if (setupError) {
@@ -119,7 +118,7 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
 
     if (props.updateRezkaNewCartoon) {
         const [parseItems = [], parserError] = await dbService.parser.parseRezkaAllPagesAsync({
-            url: ' https://rezka.ag/cartoons/best/2023/',
+            url: ' https://rezka.ag/cartoons/best/2023',
         });
         if (parserError) {
             logs.push(`rezka items has some error`, parserError);
@@ -142,6 +141,8 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
                         return logs.push(`post rezka movie error ${parseItem.url_id} error=${postError}`);
                     }
                     logs.push(`post rezka movie success ${parseItem.url_id} `);
+                } else {
+                    logs.push(`already exist ${dbMovie.href} `);
                 }
             },
             { timeout: 0 },
@@ -172,15 +173,17 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
                             return logs.push(`post rezka movie error ${parseItem.url_id} error=${postError}`);
                         }
                         logs.push(`post rezka movie success ${parseItem.url_id} `);
+                    } else {
+                        logs.push(`already exist ${dbMovie.href} `);
                     }
                 },
                 { timeout: 0 },
             );
         });
-	}
-	if (props.updateRezkaNewFilms) {
+    }
+    if (props.updateRezkaNewFilms) {
         const [parseItems = [], parserError] = await dbService.parser.parseRezkaAllPagesAsync({
-            url: ' https://rezka.ag/films/best/2023/',
+            url: ' https://rezka.ag/films/best/2023',
         });
         if (parserError) {
             logs.push(`rezka items has some error`, parserError);
@@ -203,6 +206,8 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
                         return logs.push(`post rezka movie error ${parseItem.url_id} error=${postError}`);
                     }
                     logs.push(`post rezka movie success ${parseItem.url_id} `);
+                } else {
+                    logs.push(`already exist ${dbMovie.href} `);
                 }
             },
             { timeout: 0 },
@@ -233,6 +238,8 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
                             return logs.push(`post rezka movie error ${parseItem.url_id} error=${postError}`);
                         }
                         logs.push(`post rezka movie success ${parseItem.url_id} `);
+                    } else {
+                        logs.push(`already exist ${dbMovie.href} `);
                     }
                 },
                 { timeout: 0 },
@@ -240,32 +247,33 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
         });
     }
 
-    if (props.updateRezkaImdbId) {
-        const items = dbMovies.filter((f) => !f.rezka_imdb_id);
-        logs.push('download imdb ids for ' + items.length);
-        await oneByOneAsync(
-            items.sort((a, b) => b.year - a.year),
-            async (dbMovie) => {
-                logs.push('parse dbMovie.href', dbMovie.href);
-                const [parseItem, parserError] = await dbService.parser.getCypressImdbAsync(dbMovie.href);
-                if (parserError) {
-                    logs.push(`parse cypress rezka by href error`);
-                    await dbService.rezkaMovie.putRezkaMovieAsync(dbMovie.id, {
-                        rezka_imdb_id: CONST.EMPTY_IMDB_ID,
-                    });
-                    return;
-                } else if (parseItem) {
-                    const [, postError] = await dbService.rezkaMovie.putRezkaMovieAsync(dbMovie.id, {
-                        rezka_imdb_id: parseItem.id,
-                    });
-                    if (postError) {
-                        return logs.push(`post rezka movie error ${dbMovie.id} error=${postError}`);
-                    }
-                    logs.push(`post rezka movie imdbId success ${dbMovie.id} `);
-                }
-            },
-            { timeout: 0 },
-        );
+    if (props.updateRezkaImdbIdProps) {
+        const rezkaId = props.updateRezkaImdbIdProps?.rezkaId;
+        logs.push('updateRezkaTranslationById rezkaId = ' + rezkaId);
+        if (!rezkaId) {
+            return [, 'rezkaId is empty'];
+        }
+        const [dbMovie] = await dbService.rezkaMovie.getRezkaMovieByIdAsync(rezkaId);
+        if (!dbMovie) {
+            return [, 'db movie not found ' + rezkaId];
+        }
+        logs.push('db movie = ' + dbMovie.href);
+        const [parseItem, parserError] = await dbService.parser.getCypressImdbAsync(dbMovie.href);
+        if (parserError) {
+            logs.push(`parse cypress rezka by href error`);
+            await dbService.rezkaMovie.putRezkaMovieAsync(dbMovie.id, {
+                rezka_imdb_id: CONST.EMPTY_IMDB_ID,
+            });
+        } else if (parseItem) {
+            const [, postError] = await dbService.rezkaMovie.putRezkaMovieAsync(dbMovie.id, {
+                rezka_imdb_id: parseItem.id,
+            });
+            if (postError) {
+                logs.push(`post rezka movie error ${dbMovie.id} error=${postError}`);
+            } else {
+                logs.push(`post rezka movie imdbId success ${dbMovie.id} `);
+            }
+        }
     }
 
     if (props.searchImdb) {
@@ -338,7 +346,7 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
 
     if (props.addActorsFromMovieDb) {
         const items = dbMovies.filter((f) => f.rezka_imdb_id);
-        logs.push('addActorsFromMovieDb ' + items.length); 
+        logs.push('addActorsFromMovieDb ' + items.length);
         await oneByOneAsync(
             shuffleArray(items),
             async (dbMovie, idx) => {
@@ -347,12 +355,12 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
                 if (imdbError) {
                     return logs.push(`imdb not found`);
                 } else if (imdbItem) {
-                    const json: IImdbResultResponse = JSON.parse(imdbItem.json); 
+                    const json: IImdbResultResponse = JSON.parse(imdbItem.json);
                     const actors = json.Actors.split(',');
                     await oneByOneAsync(actors, async (actor) => {
                         const [, postError] = await dbService.actor.postActorAsync({
                             name: actor.trim(),
-                            photo_url: null as unknown as string, 
+                            photo_url: null as unknown as string,
                         });
                         if (postError) {
                             logs.push(`post actor error ${dbMovie.id} error=${postError}`);
@@ -437,24 +445,7 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
         );
     }
 
-    if (props.updateRezkaTranslations) {
-        const [dbMovies = []] = await dbService.rezkaMovie.getRezkaMoviesAllAsync({});
-
-        const [allTranslations] = await dbService.rezkaMovieTranslation.getRezkaMovieTranslationAllAsync({});
-        const filtered = dbMovies.filter(
-            (dbMovie) =>
-                dbMovie.rezka_imdb_id &&
-                dbMovie.rezka_imdb_id !== 'tt000000' &&
-                !allTranslations?.some((tr) => tr.rezka_movie_id === dbMovie.id),
-        );
-        logs.push('download streams for ' + filtered.length);
-        await oneByOneAsync(filtered, async (dbMovie) => {
-            await dbService.rabbitMQ.sendMessageAsync({ id: dbMovie.id });
-            logs.push('start rabbit mq for ' + dbMovie.id); 
-        });
-    }
-
-    if (props.updateRezkaTranslationById) {
+    if (props.updateRezkaTranslationByIdProps) {
         const rezkaId = props.updateRezkaTranslationByIdProps?.rezkaId;
         logs.push('updateRezkaTranslationById rezkaId = ' + rezkaId);
         if (!rezkaId) {
@@ -470,7 +461,7 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
         });
         if (trs?.length && trs?.length > 0 && trs[0].translation_id) {
             logs.push('translation already exist');
-            return [logs.get(), undefined];
+            return [, logs.get().join('\n')];
         }
 
         logs.push('imdbId', dbMovie.rezka_imdb_id);

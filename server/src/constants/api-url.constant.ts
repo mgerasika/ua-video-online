@@ -36,7 +36,8 @@ interface IApiUrl {
             id: (id?: string) => IUrlItem;
         };
         tools: {
-            setup: IUrlItem;
+			setup: IUrlItem;
+			setupRabbitMq: IUrlItem;
             image_search: IUrlItem;
         };
 
@@ -85,7 +86,8 @@ export const API_URL = createUrls<IApiUrl>({
             id: (id?: string) => EMPTY_URL_ITEM,
         },
         tools: {
-            setup: EMPTY_URL_ITEM,
+			setup: EMPTY_URL_ITEM,
+			setupRabbitMq: EMPTY_URL_ITEM,
             image_search: EMPTY_URL_ITEM,
         },
         parser: {
