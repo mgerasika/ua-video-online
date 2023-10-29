@@ -24,7 +24,8 @@ import { IRezkaInfoResponse } from '../parser/rezka-all.controller';
 export interface ISetupBody {
     searchImdb?: boolean;
     updateImdbUaName?: boolean;
-    updateRezkaNewCartoon?: boolean;
+	updateRezkaNewCartoon?: boolean;
+	updateRezkaNewFilms?: boolean; 
     updateRezkaCartoon?: boolean;
     updateRezkaFilm?: boolean;
     updateRezkaImdbId?: boolean;
@@ -54,7 +55,8 @@ const schema = Joi.object<ISetupBody>({
     addActorsFromMovieDb: Joi.boolean().required(),
     uploadActorPhotoToCdn: Joi.boolean().required(),
     updateRezkaTranslationById: Joi.boolean().required(),
-    updateRezkaNewCartoon: Joi.boolean().required(),
+	updateRezkaNewCartoon: Joi.boolean().required(),
+	updateRezkaNewFilms: Joi.boolean().required(),
     // rezkaType: Joi.string()
     //     .valid(...Object.values(ERezkaVideoType))
     //     .required(),
@@ -175,6 +177,36 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
                 { timeout: 0 },
             );
         });
+	}
+	if (props.updateRezkaNewFilms) {
+        const [parseItems = [], parserError] = await dbService.parser.parseRezkaAllPagesAsync({
+            url: ' https://rezka.ag/films/best/2023/',
+        });
+        if (parserError) {
+            logs.push(`rezka items has some error`, parserError);
+        }
+        logs.push(`rezka items return success count=${parseItems?.length}`);
+
+        await oneByOneAsync(
+            shuffleArray(parseItems),
+            async (parseItem) => {
+                const dbMovie = dbMovies?.find((movie) => movie.href === parseItem.href);
+                if (!dbMovie) {
+                    const [, postError] = await dbService.rezkaMovie.postRezkaMovieAsync({
+                        href: parseItem.href,
+                        en_name: '',
+                        year: parseItem.year,
+                        video_type: ERezkaVideoType.film,
+                        rezka_imdb_id: null as unknown as string,
+                    });
+                    if (postError) {
+                        return logs.push(`post rezka movie error ${parseItem.url_id} error=${postError}`);
+                    }
+                    logs.push(`post rezka movie success ${parseItem.url_id} `);
+                }
+            },
+            { timeout: 0 },
+        );
     }
     if (props.updateRezkaFilm) {
         await oneByOneAsync(shuffleArray(Object.values(EFilmSubCategory)), async (subCategory) => {
@@ -306,7 +338,7 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
 
     if (props.addActorsFromMovieDb) {
         const items = dbMovies.filter((f) => f.rezka_imdb_id);
-        logs.push('addActorsFromMovieDb ' + items.length);
+        logs.push('addActorsFromMovieDb ' + items.length); 
         await oneByOneAsync(
             shuffleArray(items),
             async (dbMovie, idx) => {
@@ -315,12 +347,12 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
                 if (imdbError) {
                     return logs.push(`imdb not found`);
                 } else if (imdbItem) {
-                    const json: IImdbResultResponse = JSON.parse(imdbItem.json);
+                    const json: IImdbResultResponse = JSON.parse(imdbItem.json); 
                     const actors = json.Actors.split(',');
                     await oneByOneAsync(actors, async (actor) => {
                         const [, postError] = await dbService.actor.postActorAsync({
                             name: actor.trim(),
-                            photo_url: null as unknown as string,
+                            photo_url: null as unknown as string, 
                         });
                         if (postError) {
                             logs.push(`post actor error ${dbMovie.id} error=${postError}`);
@@ -418,7 +450,7 @@ export const setupAsync = async (props: ISetupBody): Promise<IQueryReturn<string
         logs.push('download streams for ' + filtered.length);
         await oneByOneAsync(filtered, async (dbMovie) => {
             await dbService.rabbitMQ.sendMessageAsync({ id: dbMovie.id });
-            logs.push('start rabbit mq for ' + dbMovie.id);
+            logs.push('start rabbit mq for ' + dbMovie.id); 
         });
     }
 
