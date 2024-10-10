@@ -1,5 +1,6 @@
 # Short info
 
+[Temporary proxy-server not available because VPN problem in Ukraine]
 Website scrapper that allow watch videos from [rezka](https://rezka.ag/) web site. Scrapped only videos with ukrainian and original translations. Just for home usage - not commercial. All streams periodically stored in own db. Also all movies have relation to imdb website.
 
 # Stack
