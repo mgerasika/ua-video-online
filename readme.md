@@ -1,4 +1,4 @@
-# Short info
+![ua-video-online](https://github.com/user-attachments/assets/326320d6-d4d0-45ae-9435-b81cdabeaf1d)# Short info
 
 ### !!!Temporary proxy-server not available because VPN problem in Ukraine!!!
 Website scrapper that allow watch videos from [rezka](https://rezka.ag/) web site. Scrapped only videos with ukrainian and original translations. Just for home usage - not commercial. All streams periodically stored in own db. Also all movies have relation to imdb website.
@@ -24,8 +24,6 @@ Website scrapper that allow watch videos from [rezka](https://rezka.ag/) web sit
 # Links
 
 [customer web site](https://ua-video-online.web.app/)
-
-
-![image](https://github.com/user-attachments/assets/c823f87e-5f9f-46a8-908d-e7f4c1f4b9de)
+![ua-video-online](https://github.com/user-attachments/assets/97e92a1e-a089-4682-a683-8df96590014f)
 ![image](https://github.com/mgerasika/ua-video-online/assets/10614750/1ebb5e0c-8478-4085-bc2e-49d9e1d1fe43)
 ![image](https://github.com/mgerasika/ua-video-online/assets/10614750/e35f9e39-69a6-4a6f-be34-22067a24e9e3)
