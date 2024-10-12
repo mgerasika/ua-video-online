@@ -1,5 +1,3 @@
-![ua-video-online](https://github.com/user-attachments/assets/326320d6-d4d0-45ae-9435-b81cdabeaf1d)# Short info
-
 ### !!!Temporary proxy-server not available because VPN problem in Ukraine!!!
 Website scrapper that allow watch videos from [rezka](https://rezka.ag/) web site. Scrapped only videos with ukrainian and original translations. Just for home usage - not commercial. All streams periodically stored in own db. Also all movies have relation to imdb website.
 
