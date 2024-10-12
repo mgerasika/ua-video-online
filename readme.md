@@ -12,6 +12,7 @@ Website scrapper that allow watch videos from [rezka](https://rezka.ag/) web sit
 - [cheerio](https://cheerio.js.org/) - parsing html without running browser
 - [postgresql](https://www.postgresql.org/) - database
 - [typeorm](https://typeorm.io/) - orm for database
+- [rabbit-mq](https://www.rabbitmq.com/) - broker for messages
 - [firebase](https://firebase.google.com/docs/functions) - host fe/be side in google firebase hosting/functions
 - [swagger code generation](https://github.com/mgerasika/typescript-to-swagger) - automatically build swagger.spec from express code + automatically generate client proxy code.
 - [omdbapi](http://www.omdbapi.com/) - service for getting information about movie by id (limited account)
