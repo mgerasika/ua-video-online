@@ -23,6 +23,7 @@ Website scrapper that allow watch videos from [rezka](https://rezka.ag/) web sit
 # Links
 
 [customer web site](https://ua-video-online.web.app/)
-![ua-video-online](https://github.com/user-attachments/assets/97e92a1e-a089-4682-a683-8df96590014f)
+
+![image](https://github.com/user-attachments/assets/d913bd5d-5c5e-429c-a07e-00cf322a628b)
 ![image](https://github.com/mgerasika/ua-video-online/assets/10614750/1ebb5e0c-8478-4085-bc2e-49d9e1d1fe43)
 ![image](https://github.com/mgerasika/ua-video-online/assets/10614750/e35f9e39-69a6-4a6f-be34-22067a24e9e3)
